@@ -302,9 +302,11 @@ export class WikiLayer {
         }
 
         // TODO: go through again for 'sort.json' documents
+        // and load sort values
 
+        // sort by sort values if present, otherwise use creation timestamp (as string)
         let blocks = Object.values(blocksById);
-        sortBy(blocks, block => block.id);
+        sortBy(blocks, block => block.sort ? block.sort : ('' + block.creationTimestamp));
 
         return blocks;
     }
