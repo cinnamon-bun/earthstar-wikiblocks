@@ -163,20 +163,24 @@ describe('WikiLayer', () => {
     let storage = new StorageMemory([ValidatorEs4], workspace);
     let wiki = new WikiLayer(storage);
 
-    test('make pages with blocks and save them', () => {
-        let comPage: Page = wiki.getPage('common', 'Native Plants');
-        let comBlock1: Block = wiki.newBlockInPage(comPage, AUTHOR1, 'This is block 1 about plants.');
-        let comBlock2: Block = wiki.newBlockInPage(comPage, AUTHOR1, 'This is block 2 about plants.');
+    let comPage: Page = wiki.getPage('common', 'Native Plants');
+    let comBlock1: Block = wiki.newBlockInPage(comPage, AUTHOR1, 'This is block 1 about plants.');
+    let comBlock2: Block = wiki.newBlockInPage(comPage, AUTHOR1, 'This is block 2 about plants.');
+
+    let suzPage: Page = wiki.getPage(AUTHOR1, 'My Blog');
+    let suzBlock1: Block = wiki.newBlockInPage(suzPage, AUTHOR1, 'This is block 1 of my blog.');
+    let suzBlock2: Block = wiki.newBlockInPage(suzPage, AUTHOR1, 'This is block 2 of my blog.');
+
+    test('make pages and blocks', () => {
         expect(comBlock1.owner).toStrictEqual(comPage.owner);
         expect(comBlock1.title).toStrictEqual(comPage.title);
-        wiki.saveBlockText(KEYPAIR1, comBlock1);
-        wiki.saveBlockText(KEYPAIR1, comBlock2);
-
-        let suzPage: Page = wiki.getPage(AUTHOR1, 'My Blog');
-        let suzBlock1: Block = wiki.newBlockInPage(suzPage, AUTHOR1, 'This is block 1 of my blog.');
-        let suzBlock2: Block = wiki.newBlockInPage(suzPage, AUTHOR1, 'This is block 2 of my blog.');
         expect(suzBlock1.owner).toStrictEqual(suzPage.owner);
         expect(suzBlock1.title).toStrictEqual(suzPage.title);
+    });
+
+    test('saveBlockText', () => {
+        wiki.saveBlockText(KEYPAIR1, comBlock1);
+        wiki.saveBlockText(KEYPAIR1, comBlock2);
         wiki.saveBlockText(KEYPAIR1, suzBlock1);
         wiki.saveBlockText(KEYPAIR1, suzBlock2);
     });
@@ -185,24 +189,29 @@ describe('WikiLayer', () => {
         // debug: show paths in the storage
         // for (let path of storage.paths()) { console.log('path', path); }
 
-        let allPages = wiki.listPages();
-        let comPages = wiki.listPages('common');
+        let allPagesListed = wiki.listPages();
+        let comPagesListed = wiki.listPages('common');
+        let suzPagesListed = wiki.listPages(AUTHOR1);
+
+        expect(allPagesListed.length).toBe(2);
+        expect(comPagesListed.length).toBe(1);
+        expect(suzPagesListed.length).toBe(1);
+
+        expect(comPagesListed[0]).toStrictEqual(comPage);
+        expect(suzPagesListed[0]).toStrictEqual(suzPage);
+    });
+
+    test('loadPageBlocks', () => {
         let suzPages = wiki.listPages(AUTHOR1);
-
-        expect(allPages.length).toBe(2);
-        expect(comPages.length).toBe(1);
-        expect(suzPages.length).toBe(1);
-
-        expect(comPages[0]).toStrictEqual({
-            kind: 'page',
-            owner: 'common',
-            title: 'Native Plants',
-        });
-        expect(suzPages[0]).toStrictEqual({
-            kind: 'page',
-            owner: AUTHOR1,
-            title: 'My Blog',
-        });
+        for (let page of suzPages) {
+            let blocks = wiki.loadPageBlocks(page);
+            expect(blocks.length).toBe(2);
+            // clear the edit timestamps since they won't match after a roundtrip 
+            // through Earthstar -- Earthstar will set the timestamp itself when writing
+            let foundBlock = {...blocks[0], editTimestamp: -1};
+            let expectedBlock = {...suzBlock1, editTimestamp: -1};
+            expect(foundBlock).toStrictEqual(expectedBlock);
+        }
     });
 
 });

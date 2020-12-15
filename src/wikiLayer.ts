@@ -11,6 +11,7 @@ import {
 import {
     entropyString,
     monotonicMicroseconds,
+    sortBy,
 } from './util';
 
 /*
@@ -67,6 +68,8 @@ export interface Block {
     title: string,
     id: Id,
     author: AuthorAddress,
+    creationTimestamp: number,  // from id
+    editTimestamp: number,  // from Earthstar document timestamp
     sort?: number,  // microsecond float, defaults to timestamp if not set in a document
     text: string,  // markdown
 }
@@ -161,6 +164,11 @@ export class WikiLayer {
         this.workspace = this.storage.workspace;
     }
     listPages(owner?: 'common' | AuthorAddress): Page[] {
+        // query Earthstar to list the existing pages.
+        // pages don't actually have documents, only blocks do, so
+        // this actually queries for blocks and then returns
+        // their pages (deduped).
+
         // build path prefix and query the storage
         let pathPrefix = `/${APPNAME}/`;
         if (owner === 'common') {
@@ -194,6 +202,8 @@ export class WikiLayer {
         return dedupedPages;
     }
     getPage(owner: 'common' | AuthorAddress, title: string): Page {
+        // generate a page object.  this neither reads nor writes to Earthstar,
+        // since pages don't have Earthstar documents (only blocks do).
         return {
             kind: 'page',
             owner: owner,
@@ -201,19 +211,25 @@ export class WikiLayer {
         }
     }
     newBlockInPage(page: Page, author: AuthorAddress, text: string): Block {
+        // generate, but don't save, a new block in the given page.
         if (page.owner !== 'common' && page.owner !== author) {
             throw new Error("can't add a block by one author to a page with a different author");
         }
+        let id = makeBlockId();
+        let timestamp = idToTimestamp(id);
         return {
             kind: 'block',
             owner: page.owner,
             title: page.title,
-            id: makeBlockId(),
+            id: id,
+            editTimestamp: timestamp,
+            creationTimestamp: timestamp,
             author: author,
             text: text,
         }
     }
     saveBlockText(keypair: AuthorKeypair, block: Block): boolean {
+        // save the given block's text to Earthstar.
         if (keypair.address !== block.author) {
             throw new Error("can't save block using a different author's keypair");
         }
@@ -232,6 +248,7 @@ export class WikiLayer {
         return result === WriteResult.Accepted;
     }
     saveBlockSort(keypair: AuthorKeypair, block: Block): boolean {
+        // save the given block's sort value to Earthstar.
         if (keypair.address !== block.author) {
             throw new Error("can't save block using a different author's keypair");
         }
@@ -248,5 +265,47 @@ export class WikiLayer {
             content: '' + (block.sort || idToTimestamp(block.id)),
         });
         return result === WriteResult.Accepted;
+    }
+    loadPageBlocks(page: Page): Block[] {
+        // from Earthstar, load a sorted list of the blocks for a given page.
+        let baseRoute: DocRoute = {
+            kind: 'block-doc',
+            owner: page.owner,
+            title: page.title,
+            // this character is never allowed in Earthstar paths so it's safe to use 
+            // as a splitter here
+            id: '|',
+            filename: 'foo',
+        };
+        let pathPrefix = routeToPath(baseRoute).split('|')[0];
+        let paths = this.storage.paths({ pathPrefix });
+        let routes = paths.map(pathToRoute).filter(r => typeof r !== 'string') as DocRoute[];
+
+        // cluster by block id
+        let blocksById: Record<string, Block> = {};
+        for (let route of routes) {
+            if (route.filename === 'text.md') {
+                let document = this.storage.getDocument(routeToPath(route));
+                if (document === undefined) { continue; }
+                let block: Block = {
+                    kind: 'block',
+                    owner: page.owner,
+                    title: page.title,
+                    id: route.id,
+                    author: document.author,
+                    creationTimestamp: idToTimestamp(route.id),
+                    editTimestamp: document.timestamp,
+                    text: document.content,
+                }
+                blocksById[route.id] = block;
+            }
+        }
+
+        // TODO: go through again for 'sort.json' documents
+
+        let blocks = Object.values(blocksById);
+        sortBy(blocks, block => block.id);
+
+        return blocks;
     }
 }
