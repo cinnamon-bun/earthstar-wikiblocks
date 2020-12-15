@@ -1,4 +1,13 @@
-import { AuthorAddress, IStorage, notErr, ValidationError, ValidatorEs4, WorkspaceAddress } from 'earthstar';
+import {
+    AuthorAddress,
+    AuthorKeypair,
+    IStorage,
+    ValidationError,
+    ValidatorEs4,
+    WorkspaceAddress,
+    notErr,
+    WriteResult,
+} from 'earthstar';
 import {
     entropyString,
     monotonicMicroseconds,
@@ -29,22 +38,37 @@ paths:
     /wikiblocks-v1/OWNER_NO_TILDE/TITLE/comment:COMMENTID/COMMENT_AUTHOR/text.md
 */
 
-const APPNAME = 'wikiblocks-v1';
+export const APPNAME = 'wikiblocks-v1';
 
 //================================================================================
 // TYPES
 
 type Id = string;
-type ItemKind = 'block';
+
+type DocKind = 'block-doc';
 export interface DocRoute {
-    kind: ItemKind,
+    kind: DocKind,
     owner: 'common' | AuthorAddress,
     title: string,
     id: Id,
     filename: string,
 }
 
+export interface Page {
+    kind: 'page',
+    owner: 'common' | AuthorAddress,
+    title: string,
+    blocks?: Block[],
+}
+
 export interface Block {
+    kind: 'block',
+    owner: 'common' | AuthorAddress,
+    title: string,
+    id: Id,
+    author: AuthorAddress,
+    sort?: number,  // microsecond float, defaults to timestamp if not set in a document
+    text: string,  // markdown
 }
 
 //================================================================================
@@ -86,7 +110,8 @@ let allowedBlockFilenames = [
     'sort.json',
 ];
 
-export let pathToRoute = (path: string): DocRoute | string => {  // string is an error message
+// return error message (as string) on failure to parse path
+export let pathToRoute = (path: string): DocRoute | string => {
     let parts = path.split('/').slice(1);
     if (parts.length !== 5) { return 'wrong number of slashes'; }
     let [appname, owner, titleWithPct, id, filename] = parts;
@@ -110,9 +135,9 @@ export let pathToRoute = (path: string): DocRoute | string => {  // string is an
 
     // assign kind from id
     // and validate filename
-    let kind: ItemKind = 'block';
+    let kind: DocKind = 'block-doc';
     if (isBlockId(id)) {
-        kind === 'block';
+        kind = 'block-doc';
         if (allowedBlockFilenames.indexOf(filename) === -1) { return `${filename} is not an expected filename for a ${kind}`; }
     } else {
         return `unexpected id: ${id}`;
@@ -128,16 +153,100 @@ export let routeToPath = (route: DocRoute): string => {
 
 //================================================================================
 
-class WikiLayer {
+export class WikiLayer {
     storage: IStorage;
     workspace: WorkspaceAddress;
     constructor(storage: IStorage) {
         this.storage = storage;
         this.workspace = this.storage.workspace;
     }
-    listPageRoutes(): DocRoute[] {
-        return this.storage.paths({ pathPrefix: `/${APPNAME}/` })
-            .map(pathToRoute)
-            .filter(r => typeof r !== 'string') as DocRoute[];
+    listPages(owner?: 'common' | AuthorAddress): Page[] {
+        // build path prefix and query the storage
+        let pathPrefix = `/${APPNAME}/`;
+        if (owner === 'common') {
+            pathPrefix += 'common/';
+        } else if (owner?.startsWith('@')) {
+            pathPrefix += `~${owner}/`;  // put tilde on author address
+        }
+        let paths = this.storage.paths({ pathPrefix: pathPrefix });
+
+        // parse paths into doc routes
+        let routes = paths.map(pathToRoute).filter(r => typeof r !== 'string') as DocRoute[];
+
+        // only keep block-doc text.md routes
+        routes = routes.filter(r => r.kind === 'block-doc' && r.filename === 'text.md');
+
+        // turn doc routes into page objects
+        let pages: Page[] = routes.map(r => ({
+            kind: 'page',
+            owner: r.owner,
+            title: r.title,
+        }));
+
+        // dedupe pages
+        let dedupedPages = [];
+        let prev: Page | null = null;
+        for (let thisPage of pages) {
+            if (prev !== null && prev.owner == thisPage.owner && prev.title === thisPage.title) { continue; }
+            dedupedPages.push(thisPage);
+            prev = thisPage;
+        }
+        return dedupedPages;
+    }
+    getPage(owner: 'common' | AuthorAddress, title: string): Page {
+        return {
+            kind: 'page',
+            owner: owner,
+            title: title,
+        }
+    }
+    newBlockInPage(page: Page, author: AuthorAddress, text: string): Block {
+        if (page.owner !== 'common' && page.owner !== author) {
+            throw new Error("can't add a block by one author to a page with a different author");
+        }
+        return {
+            kind: 'block',
+            owner: page.owner,
+            title: page.title,
+            id: makeBlockId(),
+            author: author,
+            text: text,
+        }
+    }
+    saveBlockText(keypair: AuthorKeypair, block: Block): boolean {
+        if (keypair.address !== block.author) {
+            throw new Error("can't save block using a different author's keypair");
+        }
+        let route: DocRoute = {
+            kind: 'block-doc',
+            owner: block.owner,
+            title: block.title,
+            id: block.id,
+            filename: 'text.md',
+        }
+        let result = this.storage.set(keypair, {
+            format: 'es.4',
+            path: routeToPath(route),
+            content: block.text,
+        });
+        return result === WriteResult.Accepted;
+    }
+    saveBlockSort(keypair: AuthorKeypair, block: Block): boolean {
+        if (keypair.address !== block.author) {
+            throw new Error("can't save block using a different author's keypair");
+        }
+        let route: DocRoute = {
+            kind: 'block-doc',
+            owner: block.owner,
+            title: block.title,
+            id: block.id,
+            filename: 'sort.json',
+        }
+        let result = this.storage.set(keypair, {
+            format: 'es.4',
+            path: routeToPath(route),
+            content: '' + (block.sort || idToTimestamp(block.id)),
+        });
+        return result === WriteResult.Accepted;
     }
 }

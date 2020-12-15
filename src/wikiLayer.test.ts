@@ -1,17 +1,34 @@
 import {
-    isBlockId,
-    makeBlockId,
-    makeBareId,
-    isNonBareId,
+    AuthorKeypair,
+    StorageMemory,
+    ValidatorEs4,
+} from 'earthstar';
+import {
+    Block,
     DocRoute,
-    pathToRoute,
-    routeToPath,
-    isBareId,
+    Page,
+    WikiLayer,
     getIdKind,
     idToTimestamp,
+    isBareId,
+    isBlockId,
+    isNonBareId,
+    makeBareId,
+    makeBlockId,
+    pathToRoute,
+    routeToPath,
 } from './wikiLayer';
 
-const AUTHOR1 = '@suzy.b7oko5hccyottytekyt7fhittx6aeyvfi4zxgiogsbnsw327w5psq';
+//================================================================================
+
+const KEYPAIR1: AuthorKeypair = {
+    address: "@suzy.b7dtlmxswr2tlbpjxuuoofmu55275qduseqzrgb6bh6niab76tzla",
+    secret: "br35uewh3bvajzm5g5exmzmt4wzpp7rvyoghwcrrx7l5eqabtmobq"
+}
+const AUTHOR1 = KEYPAIR1.address;
+const WORKSPACE = '+test.abc';
+
+//================================================================================
 
 describe('ids', () => {
     let id1 = makeBareId();
@@ -71,19 +88,19 @@ describe('ids', () => {
     });
 });
 
-describe('path <--> route', () => {
+describe('path <--> doc route', () => {
     let vectors: { path: string, route: DocRoute | string }[] = [
         {
             path: '/wikiblocks-v1/common/Hello/block:1608061261524003-tIIQ8/text.md',
-            route: { kind: 'block', owner: 'common', title: 'Hello', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
+            route: { kind: 'block-doc', owner: 'common', title: 'Hello', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
         },
         {
             path: '/wikiblocks-v1/common/Hello%20There/block:1608061261524003-tIIQ8/text.md',
-            route: { kind: 'block', owner: 'common', title: 'Hello There', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
+            route: { kind: 'block-doc', owner: 'common', title: 'Hello There', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
         },
         {
             path: `/wikiblocks-v1/~${AUTHOR1}/Hello/block:1608061261524003-tIIQ8/text.md`,
-            route: { kind: 'block', owner: AUTHOR1, title: 'Hello', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
+            route: { kind: 'block-doc', owner: AUTHOR1, title: 'Hello', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
         },
         {
             path: '/a',
@@ -103,7 +120,7 @@ describe('path <--> route', () => {
         },
         {
             path: '/wikiblocks-v1/common/Hello/block:1608061261524003-tIIQ8/unknown.file',
-            route: 'unknown.file is not an expected filename for a block',
+            route: 'unknown.file is not an expected filename for a block-doc',
         },
         {
             path: '/wikiblocks-v1/common/Hello/1608061261524003-tIIQ8/text.md',
@@ -137,4 +154,55 @@ describe('path <--> route', () => {
             expect(path2).toStrictEqual(path4);
         }
     });
+});
+
+//================================================================================
+
+describe('WikiLayer', () => {
+    let workspace = '+test.abc';
+    let storage = new StorageMemory([ValidatorEs4], workspace);
+    let wiki = new WikiLayer(storage);
+
+    test('make pages with blocks and save them', () => {
+        let comPage: Page = wiki.getPage('common', 'Native Plants');
+        let comBlock1: Block = wiki.newBlockInPage(comPage, AUTHOR1, 'This is block 1 about plants.');
+        let comBlock2: Block = wiki.newBlockInPage(comPage, AUTHOR1, 'This is block 2 about plants.');
+        expect(comBlock1.owner).toStrictEqual(comPage.owner);
+        expect(comBlock1.title).toStrictEqual(comPage.title);
+        wiki.saveBlockText(KEYPAIR1, comBlock1);
+        wiki.saveBlockText(KEYPAIR1, comBlock2);
+
+        let suzPage: Page = wiki.getPage(AUTHOR1, 'My Blog');
+        let suzBlock1: Block = wiki.newBlockInPage(suzPage, AUTHOR1, 'This is block 1 of my blog.');
+        let suzBlock2: Block = wiki.newBlockInPage(suzPage, AUTHOR1, 'This is block 2 of my blog.');
+        expect(suzBlock1.owner).toStrictEqual(suzPage.owner);
+        expect(suzBlock1.title).toStrictEqual(suzPage.title);
+        wiki.saveBlockText(KEYPAIR1, suzBlock1);
+        wiki.saveBlockText(KEYPAIR1, suzBlock2);
+    });
+
+    test('listPages', () => {
+        // debug: show paths in the storage
+        // for (let path of storage.paths()) { console.log('path', path); }
+
+        let allPages = wiki.listPages();
+        let comPages = wiki.listPages('common');
+        let suzPages = wiki.listPages(AUTHOR1);
+
+        expect(allPages.length).toBe(2);
+        expect(comPages.length).toBe(1);
+        expect(suzPages.length).toBe(1);
+
+        expect(comPages[0]).toStrictEqual({
+            kind: 'page',
+            owner: 'common',
+            title: 'Native Plants',
+        });
+        expect(suzPages[0]).toStrictEqual({
+            kind: 'page',
+            owner: AUTHOR1,
+            title: 'My Blog',
+        });
+    });
+
 });
