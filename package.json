@@ -6,6 +6,7 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "earthstar": "^6.0.0-beta.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "^4.0.1",
@@ -13,10 +14,13 @@
     "web-vitals": "^0.2.4"
   },
   "scripts": {
+    "clean": "rm -rf tsc-output build .eslintcache",
+    "tsc": "tsc -p tsconfig-for-node.json",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "pret": "prettier -c src/**"
   },
   "eslintConfig": {
     "extends": [
@@ -38,6 +42,7 @@
   },
   "devDependencies": {
     "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0"
+    "@types/react-dom": "^17.0.0",
+    "prettier": "^2.2.1"
   }
 }

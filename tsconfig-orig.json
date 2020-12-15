@@ -1,4 +1,5 @@
 {
+    "exclude": ["node_modules", "build", "ignore"],
     "include": ["src"],
     "compilerOptions": {
         "allowJs": true,
