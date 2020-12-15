@@ -75,15 +75,15 @@ describe('path <--> route', () => {
     let vectors: { path: string, route: DocRoute | string }[] = [
         {
             path: '/wikiblocks-v1/common/Hello/block:1608061261524003-tIIQ8/text.md',
-            route: { kind: 'block', author: 'common', title: 'Hello', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
+            route: { kind: 'block', owner: 'common', title: 'Hello', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
         },
         {
             path: '/wikiblocks-v1/common/Hello%20There/block:1608061261524003-tIIQ8/text.md',
-            route: { kind: 'block', author: 'common', title: 'Hello There', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
+            route: { kind: 'block', owner: 'common', title: 'Hello There', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
         },
         {
             path: `/wikiblocks-v1/~${AUTHOR1}/Hello/block:1608061261524003-tIIQ8/text.md`,
-            route: { kind: 'block', author: AUTHOR1, title: 'Hello', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
+            route: { kind: 'block', owner: AUTHOR1, title: 'Hello', id: 'block:1608061261524003-tIIQ8', filename: 'text.md' },
         },
         {
             path: '/a',

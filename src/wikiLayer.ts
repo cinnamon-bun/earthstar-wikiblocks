@@ -13,20 +13,20 @@ Blocks can be reordered by changing their sort.json document.
 
 paths:
 
-    AUTHOR can be "common" | "~@suzy.bxxx" | "@suzy.bxxx" in the case of comments
+    OWNER can be "common" | "~@suzy.bxxx" | "@suzy.bxxx" in the case of comments
     COMMENT_AUTHOR is "~@zzzz.bxxx"
     TITLE is a percent-encoded string, use encodeURIComponent
     BLOCKID and COMMENTID include microsecond timestamps and entropy like "1607997091921015-Gc0r8"
 
     // blocks
-    /wikiblocks-v1/AUTHOR/TITLE/block:BLOCKID/text.md    -- markdown text of block
+    /wikiblocks-v1/OWNER/TITLE/block:BLOCKID/text.md    -- markdown text of block
                                              /sort.json  -- a single float, defaults to current microsecond timestamp, oldest sorts first
 
     // comment on a block
-    /wikiblocks-v1/AUTHOR_NO_TILDE/TITLE/block:BLOCKID/comments/comment:COMMENTID/COMMENT_AUTHOR/text.md
+    /wikiblocks-v1/OWNER_NO_TILDE/TITLE/block:BLOCKID/comments/comment:COMMENTID/COMMENT_AUTHOR/text.md
 
     // comment on the page
-    /wikiblocks-v1/AUTHOR_NO_TILDE/TITLE/comment:COMMENTID/COMMENT_AUTHOR/text.md
+    /wikiblocks-v1/OWNER_NO_TILDE/TITLE/comment:COMMENTID/COMMENT_AUTHOR/text.md
 */
 
 const APPNAME = 'wikiblocks-v1';
@@ -38,10 +38,13 @@ type Id = string;
 type ItemKind = 'block';
 export interface DocRoute {
     kind: ItemKind,
-    author: 'common' | AuthorAddress,
+    owner: 'common' | AuthorAddress,
     title: string,
     id: Id,
     filename: string,
+}
+
+export interface Block {
 }
 
 //================================================================================
@@ -86,14 +89,14 @@ let allowedBlockFilenames = [
 export let pathToRoute = (path: string): DocRoute | string => {  // string is an error message
     let parts = path.split('/').slice(1);
     if (parts.length !== 5) { return 'wrong number of slashes'; }
-    let [appname, author, titleWithPct, id, filename] = parts;
+    let [appname, owner, titleWithPct, id, filename] = parts;
 
     if (appname !== APPNAME) { return `appname is not ${APPNAME}`; }
 
     // validate author
-    if (author === 'common') { }
-    else if (author.startsWith('~') && notErr(ValidatorEs4.parseAuthorAddress(author.slice(1)))) { 
-        author = author.slice(1); // remove tilde
+    if (owner === 'common') { }
+    else if (owner.startsWith('~') && notErr(ValidatorEs4.parseAuthorAddress(owner.slice(1)))) { 
+        owner = owner.slice(1); // remove tilde
     }
     else { return 'expected ~@author or "common" in second part of path'; }
 
@@ -115,11 +118,11 @@ export let pathToRoute = (path: string): DocRoute | string => {  // string is an
         return `unexpected id: ${id}`;
     }
 
-    return { kind: kind, author, title: titleNoPct, id, filename };
+    return { kind: kind, owner: owner, title: titleNoPct, id, filename };
 };
 
 export let routeToPath = (route: DocRoute): string => {
-    let auth = route.author === 'common' ? 'common' : '~' + route.author;
+    let auth = route.owner === 'common' ? 'common' : '~' + route.owner;
     return `/${APPNAME}/${auth}/${encodeURIComponent(route.title)}/${route.id}/${route.filename}`;
 }
 
