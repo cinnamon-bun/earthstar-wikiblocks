@@ -1,4 +1,4 @@
-import { AuthorAddress, IStorage, ValidationError, ValidatorEs4, WorkspaceAddress } from 'earthstar';
+import { AuthorAddress, IStorage, notErr, ValidationError, ValidatorEs4, WorkspaceAddress } from 'earthstar';
 import {
     entropyString,
     monotonicMicroseconds,
@@ -31,55 +31,99 @@ paths:
 
 const APPNAME = 'wikiblocks-v1';
 
-interface Route {
+//================================================================================
+// TYPES
+
+type Id = string;
+type ItemKind = 'block';
+export interface DocRoute {
+    kind: ItemKind,
     author: 'common' | AuthorAddress,
     title: string,
-    blockId: string,
+    id: Id,
     filename: string,
 }
 
-export let makeId = (): string =>
+//================================================================================
+// ID GENERATION
+
+export let makeBareId = (): Id =>
     `${monotonicMicroseconds()}-${entropyString(5)}`;
 
-const blockIdRegex = /^block:\d{16}-[a-zA-Z0-9]{5}$/;
-export let isBlockId = (id: string): boolean => {
-    return id.match(blockIdRegex) !== null;
-};
+export let makeBlockId = (): Id =>
+    'block:' + makeBareId();
 
-let expectedFilenames = [
+const bareIdRegex = /^\d{16}-[a-zA-Z0-9]{5}$/;
+const nonBareIdRegex = /^[a-z]+:\d{16}-[a-zA-Z0-9]{5}$/;
+const blockIdRegex = /^block:\d{16}-[a-zA-Z0-9]{5}$/;
+export let isBareId = (id: Id): boolean =>
+    id.match(bareIdRegex) !== null;
+export let isNonBareId = (id: Id): boolean =>
+    id.match(nonBareIdRegex) !== null;
+export let isBlockId = (id: Id): boolean =>
+    id.match(blockIdRegex) !== null;
+export let getIdKind = (id: Id): string | null => {
+    if (id.indexOf(':') === -1) { return null }
+    return id.split(':')[0];
+}
+
+export let idToTimestamp = (id: string): number => {
+    if (id.indexOf(':') !== -1) {
+        id = id.split(':')[1];
+    }
+    id = id.split('-')[0];
+    return +id;
+}
+
+//================================================================================
+// ROUTES
+
+let allowedBlockFilenames = [
     'text.md',
     'sort.json',
 ];
-let pathToRoute = (path: string): Route | null => {
+
+export let pathToRoute = (path: string): DocRoute | string => {  // string is an error message
     let parts = path.split('/').slice(1);
-    if (parts.length !== 5) { return null; }
-    let [appname, author, titleWithPct, blockId, filename] = parts;
-    if (appname !== APPNAME) { return null; }
-    if (author !== 'common' && ValidatorEs4.parseAuthorAddress(author) instanceof ValidationError) { return null; }
-    if (!isBlockId(blockId)) { return null; }
-    if (expectedFilenames.indexOf(filename) === -1) { return null; }
+    if (parts.length !== 5) { return 'wrong number of slashes'; }
+    let [appname, author, titleWithPct, id, filename] = parts;
 
-    let titleNoPct = decodeURIComponent(titleWithPct);
+    if (appname !== APPNAME) { return `appname is not ${APPNAME}`; }
 
-    return { author, title: titleNoPct, blockId, filename };
+    // validate author
+    if (author === 'common') { }
+    else if (author.startsWith('~') && notErr(ValidatorEs4.parseAuthorAddress(author.slice(1)))) { 
+        author = author.slice(1); // remove tilde
+    }
+    else { return 'expected ~@author or "common" in second part of path'; }
+
+    // validate title
+    let titleNoPct: string;
+    try {
+        titleNoPct = decodeURIComponent(titleWithPct);
+    } catch (err) {
+        return "title could not be percent-decoded";
+    }
+
+    // assign kind from id
+    // and validate filename
+    let kind: ItemKind = 'block';
+    if (isBlockId(id)) {
+        kind === 'block';
+        if (allowedBlockFilenames.indexOf(filename) === -1) { return `${filename} is not an expected filename for a ${kind}`; }
+    } else {
+        return `unexpected id: ${id}`;
+    }
+
+    return { kind: kind, author, title: titleNoPct, id, filename };
 };
-let routeToPath = (route: Route): string =>
-    `/${APPNAME}/${route.author}/${encodeURIComponent(route.title)}/${route.blockId}/${route.filename}`;
 
-let route: Route = {
-    author: '@suzy.b7oko5hccyottytekyt7fhittx6aeyvfi4zxgiogsbnsw327w5psq',
-    title: 'Local birds 🐦',
-    blockId: 'block:1607997091921015-Gc0r8',
-    filename: 'text.md',
-};
-let path = routeToPath(route);
-let route2 = pathToRoute(path) as Route;
-let path2 = routeToPath(route2);
-console.log(route);
-console.log(path);
-console.log(route2);
-console.log(path2);
-console.log(path === path2);
+export let routeToPath = (route: DocRoute): string => {
+    let auth = route.author === 'common' ? 'common' : '~' + route.author;
+    return `/${APPNAME}/${auth}/${encodeURIComponent(route.title)}/${route.id}/${route.filename}`;
+}
+
+//================================================================================
 
 class WikiLayer {
     storage: IStorage;
@@ -88,9 +132,9 @@ class WikiLayer {
         this.storage = storage;
         this.workspace = this.storage.workspace;
     }
-    listPageRoutes(): Route[] {
+    listPageRoutes(): DocRoute[] {
         return this.storage.paths({ pathPrefix: `/${APPNAME}/` })
             .map(pathToRoute)
-            .filter(r => r !== null) as Route[];
+            .filter(r => typeof r !== 'string') as DocRoute[];
     }
 }

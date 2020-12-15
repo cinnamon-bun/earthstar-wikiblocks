@@ -19,6 +19,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test-changed": "react-scripts test --verbose",
+    "test-all": "react-scripts test --watchAll --verbose ",
+    "test-once": "react-scripts test --watchAll=false --verbose",
     "eject": "react-scripts eject",
     "pret": "prettier -c src/**"
   },
