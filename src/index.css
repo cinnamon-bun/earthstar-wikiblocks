@@ -1,9 +1,66 @@
+/*
+    00 background
+    07 text
+    08 red
+    09 orange
+    0A yellow
+    0B green
+    0C cyan
+    0D blue
+    0E purple
+    0F brown
+*/
+
+/* monokai with yellow text */
+:root {
+    --base00: #272822;
+    --base01: #383830;
+    --base02: #49483e;
+    --base03: #75715e;
+    --base04: #a59f85;
+    --base05: #f8e8b2;
+    --base06: #f5e4b1;
+    --base07: #f9e8b5;
+    --base08: #f92672;
+    --base09: #fd971f;
+    --base0A: #f4bf75;
+    --base0B: #a6e22e;
+    --base0C: #a1efe4;
+    --base0D: #66d9ef;
+    --base0E: #ae81ff;
+    --base0F: #cc6633;
+}
+/* base16 default light */
+/*
+:root {
+    --base00: #f8f8f8;
+    --base01: #e8e8e8;
+    --base02: #d8d8d8;
+    --base03: #b8b8b8;
+    --base04: #585858;
+    --base05: #383838;
+    --base06: #282828;
+    --base07: #181818;
+    --base08: #ab4642;
+    --base09: #dc9656;
+    --base0A: #f7ca88;
+    --base0B: #a1b56c;
+    --base0C: #86c1b9;
+    --base0D: #7cafc2;
+    --base0E: #ba8baf;
+    --base0F: #a16946;
+}
+*/
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
         'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    /*-webkit-font-smoothing: antialiased;*/
+    /*-moz-osx-font-smoothing: grayscale;*/
+    background-color: var(--base00);
+    color: var(--base07);
+    box-sizing: border-box;
 }
 
 code {

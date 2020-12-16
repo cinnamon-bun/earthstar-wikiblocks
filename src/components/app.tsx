@@ -37,7 +37,9 @@ let plantPage = wiki.getPage('common', 'Native Plants');
 saveBlocks(wiki, plantPage, [
     'Block 1 about plants.',
     'Block 2 about plants.',
-    'Block 3 about plants.',
+    'Block 3 about plants. Block 3 about plants. Block 3 about plants. Block 3 about plants. '+
+    'Block 3 about plants. Block 3 about plants. Block 3 about plants. Block 3 about plants. '+
+    'Block 3 about plants. Block 3 about plants. Block 3 about plants. Block 3 about plants. ',
 ]);
 let blogPage = wiki.getPage(AUTHOR1, 'My Blog');
 saveBlocks(wiki, blogPage, [
@@ -56,7 +58,6 @@ export let App = () => {
     return (
         <div className="app">
             <PageView page={plantPage} />
-            <PageView page={blogPage} />
         </div>
     );
 }

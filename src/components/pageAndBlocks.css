@@ -1,0 +1,107 @@
+:root {
+    --button-column-width: 5ch;
+    --button-round: 10px;
+    --round: 5px;
+    --fadein-time: 0.1s;
+    --fadeout-time: 0.5s;
+}
+
+.pageView {
+    padding: 10px;
+}
+    .pageView h1 {
+        margin-top: 0px;
+    }
+    .pageView .owner {
+        font-style: italic;
+    }
+
+.pageBlocks {
+    padding-top: 10px;
+}
+    .pageBlocks > * + * {
+        padding-top: 10px;
+    }
+
+.addHr {
+    display: flex;
+    align-items: center;
+    opacity: 0.1;
+    transition-property: opacity;
+    transition-duration: var(--fadeout-time);
+}
+.addHr:hover {
+    opacity: 1;
+    transition-duration: var(--fadein-time);
+}
+    .addHr .buttonColumn {
+        flex-basis: var(--button-column-width);
+        padding-right: 10px;
+    }
+        .addHr .buttonColumn button {
+            display: block;
+            font-weight: bold;
+            width: 100%;
+            padding: 5px 0px;
+            color: var(--base00);
+            background-color: var(--base0B);
+            border-radius: var(--button-round);
+            border: none;
+        }
+    .addHr hr {
+        display: block;
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 0;
+        height: 2px;
+        border: none;
+        background-color: var(--base0B);
+        margin: 0px;
+    }
+
+.blockRow {
+    display: flex;
+}
+    .blockRow .buttonColumn {
+        flex-basis: var(--button-column-width);
+        padding-right: 10px;
+        opacity: 0.1;
+        transition-property: opacity;
+        transition-duration: var(--fadeout-time);
+    }
+    .blockRow:hover .buttonColumn {
+        opacity: 1.0;
+        transition-duration: var(--fadein-time);
+    }
+        .blockRow .buttonColumn > * + * {
+            margin-top: 10px;
+        }
+        .blockRow .buttonColumn button {
+            display: block;
+            font-weight: bold;
+            width: 100%;
+            padding: 5px 0px;
+            color: var(--base00);
+            background-color: var(--base0D);
+            border-radius: var(--button-round);
+            border: none;
+        }
+
+    .blockRow .blockContent {
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 0;
+        border-radius: var(--round);
+        padding: 10px;
+        background-color: var(--base00);
+        border: 1px solid transparent;
+    }
+    .blockRow:hover .blockContent {
+        box-shadow: 0px 0px 10px 3px var(--base01);
+        border: 1px solid var(--base02);
+    }
+        .blockRow .blockContent .details {
+            text-align: right;
+            font-size: 80%;
+            opacity: 0.5;
+        }
