@@ -28,3 +28,14 @@ let _cmpFn = <T>(a: T, b: T): number =>
 export let sortBy = <T>(arr: T[], fn: (item: T) => any) => {
     arr.sort((a, b) => _cmpFn(fn(a), fn(b)));
 };
+
+export let timestampToHuman = (timestamp: number): string => {
+    // works with milliseconds or microseconds.
+    if (timestamp > 9999999999999) {
+        timestamp /= 1000;
+    }
+    let d = new Date(timestamp);
+    return d.toLocaleString();
+}
+
+export let log = (name: string, ...args: any[]) => console.log(name + ' |', ...args);

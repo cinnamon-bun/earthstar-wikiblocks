@@ -2,7 +2,7 @@ import {
     AuthorAddress,
     AuthorKeypair,
     IStorage,
-    ValidationError,
+    //ValidationError,
     ValidatorEs4,
     WorkspaceAddress,
     notErr,
@@ -195,7 +195,7 @@ export class WikiLayer {
         let dedupedPages = [];
         let prev: Page | null = null;
         for (let thisPage of pages) {
-            if (prev !== null && prev.owner == thisPage.owner && prev.title === thisPage.title) { continue; }
+            if (prev !== null && prev.owner === thisPage.owner && prev.title === thisPage.title) { continue; }
             dedupedPages.push(thisPage);
             prev = thisPage;
         }
