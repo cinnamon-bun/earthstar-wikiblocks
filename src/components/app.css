@@ -2,3 +2,37 @@
     background-color: none;
     margin: 15px;
 }
+
+.themeChooser {
+    text-align: right;
+}
+
+.themeChooser label {
+    color: var(--base04);
+}
+
+.themeChooser button {
+    color: var(--base04);
+    background-color: var(--base00);
+    font-weight: bold;
+    padding: 5px 7px;
+    font: inherit;
+    border-radius: var(--button-round);
+    border: 2px solid var(--base02);
+}
+
+.themeChooser select {
+    color: var(--base04);
+    background-color: transparent;
+    width: 12ch;
+    display: inline-block;
+    line-height: inherit;
+    border: 2px solid var(--base02);
+    border-radius: var(--round);
+    padding: 5px 4px;
+    margin: 0px 7px;
+    font: inherit;
+    -moz-appearance: none;
+	-webkit-appearance: none;
+	appearance: none;
+}

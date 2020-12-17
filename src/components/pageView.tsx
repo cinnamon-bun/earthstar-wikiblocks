@@ -17,10 +17,10 @@ export let PageView = (props: PageViewProps) => {
             <div className="pageBlocks">
                 <AddHr/>
                 {page.blocks?.map((block) => (
-                    <>
-                    <BlockView key={block.id} block={block} />
-                    <AddHr/>
-                    </>
+                    <React.Fragment key={block.id}>
+                        <BlockView block={block} />
+                        <AddHr/>
+                    </React.Fragment>
                 ))}
             </div>
         </div>
