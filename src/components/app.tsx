@@ -81,7 +81,6 @@ let invertTheme = (theme: Theme): Theme => {
         base06: theme.base01,
         base07: theme.base00,
     }
-    return theme;
 };
 
 let themeToCssVars = (theme: themes.Base16Theme): string => `
@@ -166,7 +165,7 @@ export let ThemeChooser = () => {
             Theme:
             <select value={theme.scheme} onChange={e => setTheme(findThemeByName(e.target.value))}>
                 {allThemes.map(th =>
-                    <option value={th.scheme}
+                    <option key={th.scheme} value={th.scheme}
                         style={{backgroundColor: th.base00, color: th.base07}}
                     >
                         {th.scheme}

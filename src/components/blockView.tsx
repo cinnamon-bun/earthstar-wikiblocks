@@ -23,6 +23,7 @@ export let BlockView = (props: BlockViewProps) => {
                     {block.owner !== 'common' ? null : (
                         <div>by: {block.author.slice(0, 12) + '...'}</div>
                     )}
+                    <div>sort: {block.sort ? block.sort : ('' + block.creationTimestamp)}</div>
                     <div>created: {timestampToHuman(block.creationTimestamp)}</div>
                     <div>edited: {timestampToHuman(block.editTimestamp)}</div>
                 </div>
