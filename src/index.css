@@ -1,6 +1,10 @@
 /*
+    BASE16 colors
+
     00 background
+    ...
     07 text
+
     08 red
     09 orange
     0A yellow
@@ -11,49 +15,7 @@
     0F brown
 */
 
-/* monokai with yellow text */
-/*
-:root {
-    --base00: #272822;
-    --base01: #383830;
-    --base02: #49483e;
-    --base03: #75715e;
-    --base04: #a59f85;
-    --base05: #f8e8b2;
-    --base06: #f5e4b1;
-    --base07: #f9e8b5;
-    --base08: #f92672;
-    --base09: #fd971f;
-    --base0A: #f4bf75;
-    --base0B: #a6e22e;
-    --base0C: #a1efe4;
-    --base0D: #66d9ef;
-    --base0E: #ae81ff;
-    --base0F: #cc6633;
-}
-*/
-/* base16 default light */
-/*
-:root {
-    --base00: #f8f8f8;
-    --base01: #e8e8e8;
-    --base02: #d8d8d8;
-    --base03: #b8b8b8;
-    --base04: #585858;
-    --base05: #383838;
-    --base06: #282828;
-    --base07: #181818;
-    --base08: #ab4642;
-    --base09: #dc9656;
-    --base0A: #f7ca88;
-    --base0B: #a1b56c;
-    --base0C: #86c1b9;
-    --base0D: #7cafc2;
-    --base0E: #ba8baf;
-    --base0F: #a16946;
-}
-*/
-/* atelier heath */
+/* atelier heath dark */
 /*
 :root {
     --base00: #1b181b;
@@ -72,48 +34,6 @@
     --base0D: #516aec;
     --base0E: #7b59c0;
     --base0F: #cc33cc;
-}
-*/
-/* dracula */
-/*
-:root {
-    --base00: #282936;
-    --base01: #3a3c4e;
-    --base02: #4d4f68;
-    --base03: #626483;
-    --base04: #62d6e8;
-    --base05: #e9e9f4;
-    --base06: #f1f2f8;
-    --base07: #f7f7fb;
-    --base08: #ea51b2;
-    --base09: #b45bcf;
-    --base0A: #00f769;
-    --base0B: #ebff87;
-    --base0C: #a1efe4;
-    --base0D: #62d6e8;
-    --base0E: #b45bcf;
-    --base0F: #00f769;
-}
-*/
-/* solarized light */
-/*
-:root {
-    --base00: #fdf6e3;
-    --base01: #eee8d5;
-    --base02: #93a1a1;
-    --base03: #839496;
-    --base04: #657b83;
-    --base05: #586e75;
-    --base06: #073642;
-    --base07: #002b36;
-    --base08: #dc322f;
-    --base09: #cb4b16;
-    --base0A: #b58900;
-    --base0B: #859900;
-    --base0C: #2aa198;
-    --base0D: #268bd2;
-    --base0E: #6c71c4;
-    --base0F: #d33682;
 }
 */
 
