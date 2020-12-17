@@ -12,6 +12,7 @@
 */
 
 /* monokai with yellow text */
+/*
 :root {
     --base00: #272822;
     --base01: #383830;
@@ -30,6 +31,7 @@
     --base0E: #ae81ff;
     --base0F: #cc6633;
 }
+*/
 /* base16 default light */
 /*
 :root {
@@ -51,6 +53,67 @@
     --base0F: #a16946;
 }
 */
+/* atelier heath */
+/*
+:root {
+    --base00: #1b181b;
+    --base01: #292329;
+    --base02: #695d69;
+    --base03: #776977;
+    --base04: #9e8f9e;
+    --base05: #ab9bab;
+    --base06: #d8cad8;
+    --base07: #f7f3f7;
+    --base08: #ca402b;
+    --base09: #a65926;
+    --base0A: #bb8a35;
+    --base0B: #918b3b;
+    --base0C: #159393;
+    --base0D: #516aec;
+    --base0E: #7b59c0;
+    --base0F: #cc33cc;
+}
+*/
+/* dracula */
+:root {
+    --base00: #282936;
+    --base01: #3a3c4e;
+    --base02: #4d4f68;
+    --base03: #626483;
+    --base04: #62d6e8;
+    --base05: #e9e9f4;
+    --base06: #f1f2f8;
+    --base07: #f7f7fb;
+    --base08: #ea51b2;
+    --base09: #b45bcf;
+    --base0A: #00f769;
+    --base0B: #ebff87;
+    --base0C: #a1efe4;
+    --base0D: #62d6e8;
+    --base0E: #b45bcf;
+    --base0F: #00f769;
+}
+/* solarized light */
+/*
+:root {
+    --base00: #fdf6e3;
+    --base01: #eee8d5;
+    --base02: #93a1a1;
+    --base03: #839496;
+    --base04: #657b83;
+    --base05: #586e75;
+    --base06: #073642;
+    --base07: #002b36;
+    --base08: #dc322f;
+    --base09: #cb4b16;
+    --base0A: #b58900;
+    --base0B: #859900;
+    --base0C: #2aa198;
+    --base0D: #268bd2;
+    --base0E: #6c71c4;
+    --base0F: #d33682;
+}
+*/
 
 body {
     margin: 0;
@@ -61,6 +124,9 @@ body {
     background-color: var(--base00);
     color: var(--base07);
     box-sizing: border-box;
+}
+a {
+    color: var(--base0E);
 }
 
 code {

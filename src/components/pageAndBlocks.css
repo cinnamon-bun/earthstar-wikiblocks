@@ -14,6 +14,7 @@
     }
     .pageView .owner {
         font-style: italic;
+        opacity: 0.5;
     }
 
 .pageBlocks {
@@ -94,13 +95,32 @@
         border-radius: var(--round);
         padding: 10px;
         background-color: var(--base00);
-        border: 1px solid transparent;
     }
     .blockRow:hover .blockContent {
-        box-shadow: 0px 0px 10px 3px var(--base01);
-        border: 1px solid var(--base02);
+        box-shadow: 0px 0px 10px 3px var(--base02);
     }
+
+    /* ---- markdown: remove top and bottom margins ---- */
+    .blockRow .blockContent .markdown > :only-child {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+    .blockRow .blockContent .markdown > :first-child {
+        margin-top: 0px;
+    }
+    .blockRow .blockContent .markdown > :last-child {
+        margin-bottom: 0px;
+    }
+    .blockRow .blockContent .markdown img {
+        max-width: 100%;
+        max-height: 15em;
+        border: 1px solid var(--base02);
+        background-color: var(--base02);
+    }
+    /* ---- /markdown ---- */
+
         .blockRow .blockContent .details {
+            display: none;
             text-align: right;
             font-size: 80%;
             opacity: 0.5;

@@ -1,5 +1,4 @@
 import React from 'react';
-import { classicNameResolver } from 'typescript';
 import { Page } from '../lib/wikiLayer';
 import { BlockView } from './blockView';
 
@@ -10,7 +9,7 @@ export interface PageViewProps {
 }
 export let PageView = (props: PageViewProps) => {
     let page = props.page;
-    let owner = page.owner === 'common' ? 'common' : 'by ' + page.owner.slice(0, 12) + '...';
+    let owner = page.owner === 'common' ? 'anyone can edit' : 'by ' + page.owner.slice(0, 12) + '...';
     return (
         <div className="pageView">
             <h1>{page.title}</h1>
