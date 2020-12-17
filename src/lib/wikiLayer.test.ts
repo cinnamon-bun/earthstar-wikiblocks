@@ -170,6 +170,9 @@ describe('WikiLayer', () => {
     let suzPage: Page = wiki.getPage(AUTHOR1, 'My Blog');
     let suzBlock1: Block = wiki.newBlockInPage(suzPage, AUTHOR1, 'This is block 1 of my blog.');
     let suzBlock2: Block = wiki.newBlockInPage(suzPage, AUTHOR1, 'This is block 2 of my blog.');
+    let suzBlock3: Block = wiki.newBlockInPage(suzPage, AUTHOR1, 'This is block 3 of my blog.');
+    // make block 3 sort to the middle
+    suzBlock3.sort = (suzBlock1.creationTimestamp + suzBlock2.creationTimestamp)/2;
 
     test('make pages and blocks', () => {
         expect(comBlock1.owner).toStrictEqual(comPage.owner);
@@ -183,6 +186,8 @@ describe('WikiLayer', () => {
         wiki.saveBlockText(KEYPAIR1, comBlock2);
         wiki.saveBlockText(KEYPAIR1, suzBlock1);
         wiki.saveBlockText(KEYPAIR1, suzBlock2);
+        wiki.saveBlockText(KEYPAIR1, suzBlock3);
+        wiki.saveBlockSort(KEYPAIR1, suzBlock3);
     });
 
     test('listPages', () => {
@@ -205,12 +210,13 @@ describe('WikiLayer', () => {
         let suzPages = wiki.listPages(AUTHOR1);
         for (let page of suzPages) {
             let blocks = wiki.loadPageBlocks(page);
-            expect(blocks.length).toBe(2);
+            expect(blocks.length).toBe(3);
             // clear the edit timestamps since they won't match after a roundtrip 
             // through Earthstar -- Earthstar will set the timestamp itself when writing
-            let foundBlock = {...blocks[0], editTimestamp: -1};
-            let expectedBlock = {...suzBlock1, editTimestamp: -1};
-            expect(foundBlock).toStrictEqual(expectedBlock);
+            let foundBlocks = blocks.map(b => ({...b, editTimestamp: -1}));
+            // block 3 sorts to the middle
+            let expectedBlocks = [suzBlock1, suzBlock3, suzBlock2].map(b => ({...b, editTimestamp: -1}));
+            expect(foundBlocks).toStrictEqual(expectedBlocks);
         }
     });
 

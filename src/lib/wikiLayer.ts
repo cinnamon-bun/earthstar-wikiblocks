@@ -283,6 +283,7 @@ export class WikiLayer {
 
         // cluster by block id
         let blocksById: Record<string, Block> = {};
+        // first load the main document, 'text.md'
         for (let route of routes) {
             if (route.filename === 'text.md') {
                 let document = this.storage.getDocument(routeToPath(route));
@@ -300,13 +301,24 @@ export class WikiLayer {
                 blocksById[route.id] = block;
             }
         }
+        // then load the sort document only if the text document was already loaded
+        for (let route of routes) {
+            if (route.filename === 'sort.json') {
+                let block = blocksById[route.id];
+                if (block === undefined) { continue; }
+                let document = this.storage.getDocument(routeToPath(route));
+                if (document === undefined) { continue; }
+                // content is a string; convert it to a float
+                let sort = +document.content;
+                if (isNaN(sort)) { continue; } 
+                block.sort = sort;
+            }
+        }
 
-        // TODO: go through again for 'sort.json' documents
-        // and load sort values
 
         // sort by sort values if present, otherwise use creation timestamp (as string)
         let blocks = Object.values(blocksById);
-        sortBy(blocks, block => block.sort ? block.sort : ('' + block.creationTimestamp));
+        sortBy(blocks, block => block.sort ? block.sort : block.creationTimestamp);
 
         return blocks;
     }
