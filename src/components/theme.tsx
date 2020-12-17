@@ -4,7 +4,7 @@ import * as themes from 'base16';
 
 import { log } from '../lib/util';
 
-import './app.css';
+import './theme.css';
 
 //================================================================================
 // HELPER FUNCTIONS
@@ -99,7 +99,6 @@ interface ThemeFlagProps {
     onClick?: (e: any) => void;
 }
 export let ThemeFlag = (props: ThemeFlagProps) => {
-    log('ThemeFlag', props.theme?.base00);
     let cls = '';
     let demoText: string | null = null;
     let firstCellStyle: React.CSSProperties = {};
@@ -146,7 +145,6 @@ export let ThemeChooserFullScreen = () => {
             overflow: hidden;
         }
     `;
-    log('ThemeChooser', 'isDark', isDark);
     return (
         <div className='themeChooserFullScreen'>
             <button type="button" onClick={e => setIsShown(!isShown)}>Theme</button>

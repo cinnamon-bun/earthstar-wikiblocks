@@ -1,5 +1,6 @@
 import { range } from 'earthstar';
 import React from 'react';
+import { log } from '../lib/util';
 import { Page } from '../lib/wikiLayer';
 import { BlockView } from './blockView';
 
@@ -34,7 +35,7 @@ export let PageView = (props: PageViewProps) => {
         items.push(<AddBlock key='last-add' sort={lastSort} />);
     } else {
         items = [
-            <AddBlock key='a' />,
+            <AddBlock key='a' sort={Date.now() * 1000}/>,
         ];
     }
     return (
@@ -49,16 +50,17 @@ export let PageView = (props: PageViewProps) => {
 };
 
 export interface AddBlockProps {
-    sort?: number,
+    sort: number,
 }
 export let AddBlock = (props: AddBlockProps) => {
     return (
-        <div className="addHr">
+        <div className="addBlock"
+            onClick={() => log('AddBlock', props.sort)}
+        >
             <div className="buttonColumn">
                 <button type="button">add</button>
             </div>
             <hr/>
-            {props.sort}
         </div>
     )
 }

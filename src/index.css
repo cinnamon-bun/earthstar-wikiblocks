@@ -1,4 +1,14 @@
-/*
+/* overall settings */
+:root {
+    --button-column-width: 5ch;
+    --round-button: 10px;
+    --round-card: 5px;
+    --fadein-time: 0.08s;
+    --fadeout-time: 0.4s;
+    --hidden-controls-opacity: 0.0;
+}
+
+/* start off with a default base16 theme which we'll override from javascript later.
     BASE16 colors
 
     00 background
@@ -14,9 +24,7 @@
     0E purple
     0F brown
 */
-
 /* atelier heath dark */
-/*
 :root {
     --base00: #1b181b;
     --base01: #292329;
@@ -35,7 +43,6 @@
     --base0E: #7b59c0;
     --base0F: #cc33cc;
 }
-*/
 
 body {
     margin: 0;
@@ -47,6 +54,7 @@ body {
     color: var(--base07);
     box-sizing: border-box;
 }
+
 a {
     color: var(--base0E);
 }
