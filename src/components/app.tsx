@@ -83,8 +83,8 @@ let invertTheme = (theme: Theme): Theme => {
     }
 };
 
-let themeToCssVars = (theme: themes.Base16Theme): string => `
-:root {
+let themeToCssVars = (theme: themes.Base16Theme, selector: string): string => `
+${selector} {
     --base00: ${theme.base00};
     --base01: ${theme.base01};
     --base02: ${theme.base02};
@@ -144,18 +144,107 @@ export let App = () => {
     return (
         <ThemeContext.Provider value={initialThemeValue}>
             <div className="app">
-                <ThemeStyleTag />
+                <SetThemeCssVariables />
                 <ThemeChooser />
+                <ThemeChooserFullScreen />
                 <PageView page={plantPage} />
             </div>
         </ThemeContext.Provider>
     );
 }
 
-export let ThemeStyleTag = () => {
+interface ThemeVariablesProps {
+    theme?: Theme
+    selector?: string,
+}
+export let SetThemeCssVariables = (props: ThemeVariablesProps) => {
     let { theme, allThemes, setTheme, isDark, setIsDark } = useContext(ThemeContext);
+    theme = props.theme || theme;
     if (!isDark) { theme = invertTheme(theme); }
-    return <style dangerouslySetInnerHTML={{__html: themeToCssVars(theme)}}></style>;
+    return <style dangerouslySetInnerHTML={{__html: themeToCssVars(theme, props.selector || ':root')}}></style>;
+}
+
+interface ThemeFlagProps {
+    theme?: Theme;
+    style?: React.CSSProperties;
+    onClick?: (e: any) => void;
+}
+export let ThemeFlag = (props: ThemeFlagProps) => {
+    log('ThemeFlag', props.theme?.base00);
+    let cls = '';
+    let demoText: string | null = null;
+    let firstCellStyle: React.CSSProperties = {};
+    if (props.theme) {
+        cls = 'themeFlag-' + props.theme.scheme.split(' ').join('-');
+        demoText = props.theme.scheme;
+        firstCellStyle.width = '11ch';
+    }
+    return (
+        <div className={'themeFlag ' + cls} style={props.style || {}} onClick={props.onClick}>
+            {props.theme ? <SetThemeCssVariables key={props.theme.base00} theme={props.theme} selector={'.' + cls} /> : null}
+            <div
+                className="themeFlagStripe"
+                style={{ ...firstCellStyle, background: 'var(--base00)', color: 'var(--base07)' }}
+            >
+                {demoText}
+            </div>
+            <div className="themeFlagStripe" style={{ background: 'var(--base01)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base02)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base03)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base04)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base05)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base06)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base07)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base08)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base09)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base0A)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base0B)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base0C)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base0D)' }} />
+            <div className="themeFlagStripe" style={{ background: 'var(--base0E)' }} />
+        </div>
+    );
+}
+
+export let ThemeChooserFullScreen = () => {
+    let [ isShown, setIsShown ] = useState(false);
+    let { theme, allThemes, setTheme, isDark, setIsDark } = useContext(ThemeContext);
+    let bodyNoScrollCss = `
+        body {
+            overflow: hidden;
+        }
+    `;
+    log('ThemeChooser', 'isDark', isDark);
+    return (
+        <div className='themeChooserFullScreen'>
+            <button type="button" onClick={e => setIsShown(!isShown)}>Theme</button>
+            { !isShown ? null : 
+                <div className="themeChooserFullScreenBackdrop"
+                    onClick={e => setIsShown(!isShown)}
+                >
+                    <div className="themeChooserFullScreenPanel"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <h3>
+                            Pick a{" "}
+                            <button type="button"
+                                onClick={e => setIsDark(!isDark)}
+                            >
+                                {isDark ? 'dark' : 'light'}
+                            </button>
+                            {" "}theme
+                        </h3>
+                        {allThemes.map(th => {
+                            return <ThemeFlag key={th.scheme} theme={th}
+                                onClick={e => { setTheme(th); setIsShown(false); } }
+                                />
+                        })}
+                    </div>
+                    <style dangerouslySetInnerHTML={{ __html: bodyNoScrollCss }}></style>
+                </div>
+            }
+        </div>
+    );
 }
 
 export let ThemeChooser = () => {
@@ -180,5 +269,6 @@ export let ThemeChooser = () => {
             Dark
         </label>
         */}
+        <ThemeFlag />
     </div>;
 }
