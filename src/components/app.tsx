@@ -225,6 +225,10 @@ export let ThemeChooserFullScreen = () => {
                     <div className="themeChooserFullScreenPanel"
                         onClick={e => e.stopPropagation()}
                     >
+                        <h3>Current theme</h3>
+                        <ThemeFlag key={theme.scheme} theme={theme}
+                            onClick={e => { setIsShown(false); } }
+                            />
                         <h3>
                             Pick a{" "}
                             <button type="button"
