@@ -14,11 +14,12 @@ import { PageView } from './pageView';
 import {
     SetThemeCssVariables,
     Theme,
-    ThemeChooser,
+    ThemeDropdown,
     ThemeChooserFullScreen,
     ThemeContext,
     allThemes,
     defaultTheme,
+    ThemeDarkButton,
 } from './theme';
 
 import './app.css';
@@ -88,7 +89,11 @@ export let App = () => {
         <ThemeContext.Provider value={initialThemeValue}>
             <SetThemeCssVariables />
             <div className="app">
-                <ThemeChooserFullScreen />
+                <div style={{textAlign: 'right'}}>
+                    <ThemeChooserFullScreen />
+                    <ThemeDarkButton />
+                    {/*<ThemeDropdown />*/}
+                </div>
                 <PageView page={plantPage} />
             </div>
         </ThemeContext.Provider>

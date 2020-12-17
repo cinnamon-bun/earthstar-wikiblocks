@@ -147,7 +147,7 @@ export let ThemeChooserFullScreen = () => {
     `;
     return (
         <div className='themeChooserFullScreen'>
-            <button type="button" onClick={e => setIsShown(!isShown)}>Theme</button>
+            <button className='faintButton' type="button" onClick={e => setIsShown(!isShown)}>Theme</button>
             { !isShown ? null : 
                 <div className="themeChooserFullScreenBackdrop"
                     onClick={e => setIsShown(!isShown)}
@@ -157,7 +157,7 @@ export let ThemeChooserFullScreen = () => {
                     >
                         <h3>
                             Mode:{" "}
-                            <button type="button"
+                            <button className='faintButton' type="button"
                                 onClick={e => setIsDark(!isDark)}
                             >
                                 {isDark ? 'dark' : 'light'}
@@ -181,21 +181,22 @@ export let ThemeChooserFullScreen = () => {
     );
 }
 
-export let ThemeChooser = () => {
+export let ThemeDarkButton = () => {
+    let { isDark, setIsDark } = useContext(ThemeContext);
+    return <button className='faintButton' type="button" onClick={e => setIsDark(!isDark)}>{isDark ? 'Dark' : 'Light'}</button>
+}
+
+export let ThemeDropdown = () => {
     let { theme, allThemes, setTheme, isDark, setIsDark } = useContext(ThemeContext);
-    return <div className='themeChooser'>
-        <label>
-            Theme:
-            <select value={theme.scheme} onChange={e => setTheme(findThemeByName(e.target.value))}>
-                {allThemes.map(th =>
-                    <option key={th.scheme} value={th.scheme}
-                        style={{backgroundColor: th.base00, color: th.base07}}
-                    >
-                        {th.scheme}
-                    </option>
-                )}
-            </select>
-        </label>
-        <button type="button" onClick={e => setIsDark(!isDark)}>{isDark ? 'dark' : 'light'}</button>
+    return <div className='themeDropdown'>
+        <select value={theme.scheme} onChange={e => setTheme(findThemeByName(e.target.value))}>
+            {allThemes.map(th =>
+                <option key={th.scheme} value={th.scheme}
+                    style={{backgroundColor: th.base00, color: th.base07}}
+                >
+                    {th.scheme}
+                </option>
+            )}
+        </select>
     </div>;
 }
