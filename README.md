@@ -4,6 +4,12 @@ A wiki / blogging system for [Earthstar](https://github.com/earthstar-project/ea
 
 A work in progress!
 
+## Demo
+
+https://wikiblocks.netlify.app/
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/a52bf207-8118-433b-b5a7-cf85331b83fd/deploy-status)](https://app.netlify.com/sites/wikiblocks/deploys)
+
 ---
 
 # Getting Started with Create React App
