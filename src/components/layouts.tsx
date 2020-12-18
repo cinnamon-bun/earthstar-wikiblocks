@@ -18,6 +18,11 @@ export const Stack: React.FunctionComponent<LayoutProps> = (props) =>
         {props.children}
     </div>
 
+export const StackTight: React.FunctionComponent<LayoutProps> = (props) =>
+    <div className={`stackSmall ${props.align || ''} ${props.className || ''}`} style={props.style}>
+        {props.children}
+    </div>
+
 interface ClusterProps {
     align?: 'left' | 'center' | 'right' | 'justify',
     wrap?: boolean;

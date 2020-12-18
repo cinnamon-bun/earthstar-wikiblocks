@@ -15,6 +15,17 @@
     margin-top: var(--s0);
 }
 
+.stackTight {
+    border: var(--test-border-width) solid red;
+}
+.stackTight > * {
+    border: var(--test-border-width) dotted red;
+}
+.stackTight > * + * {
+    margin-top: var(--s-2);
+}
+
+
 /*-----------------------------------------------*/
 
 .cluster {

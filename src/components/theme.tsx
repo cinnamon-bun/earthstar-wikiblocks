@@ -4,6 +4,18 @@ import * as themes from 'base16';
 
 import { log } from '../lib/util';
 
+import {
+    Stack,
+    StackTight,
+    Box,
+    Cluster,
+    ClusterSpacer,
+    FlexItem,
+    FlexRow,
+    FlexSpacer,
+} from './layouts';
+
+import '../index.css';
 import './theme.css';
 
 //================================================================================
@@ -147,7 +159,7 @@ export let ThemeChooserFullScreen = () => {
     `;
     return (
         <div className='themeChooserFullScreen'>
-            <button className='faintButton' type="button" onClick={e => setIsShown(!isShown)}>Theme</button>
+            <button className='buttonHollowFaint' type="button" onClick={e => setIsShown(!isShown)}>Theme</button>
             { !isShown ? null : 
                 <div className="themeChooserFullScreenBackdrop"
                     onClick={e => setIsShown(!isShown)}
@@ -155,24 +167,28 @@ export let ThemeChooserFullScreen = () => {
                     <div className="themeChooserFullScreenPanel"
                         onClick={e => e.stopPropagation()}
                     >
-                        <h3>
-                            Mode:{" "}
-                            <button className='faintButton' type="button"
-                                onClick={e => setIsDark(!isDark)}
-                            >
-                                {isDark ? 'dark' : 'light'}
-                            </button>
-                        </h3>
-                        <h3>Current theme</h3>
-                        <ThemeFlag key={theme.scheme} theme={theme}
-                            onClick={e => { setIsShown(false); } }
-                            />
-                        <h3>Other themes</h3>
-                        {allThemes.map(th => {
-                            return <ThemeFlag key={th.scheme} theme={th}
-                                onClick={e => { setTheme(th); setIsShown(false); } }
+                        <Stack>
+                            <h3>
+                                Mode:{" "}
+                                <button className='buttonHollowStrong' type="button"
+                                    onClick={e => setIsDark(!isDark)}
+                                >
+                                    {isDark ? 'dark' : 'light'}
+                                </button>
+                            </h3>
+                            <h3>Current theme</h3>
+                            <ThemeFlag key={theme.scheme} theme={theme}
+                                onClick={e => { setIsShown(false); } }
                                 />
-                        })}
+                            <h3>Other themes</h3>
+                            <div>
+                            {allThemes.map(th => {
+                                return <ThemeFlag key={th.scheme} theme={th}
+                                    onClick={e => { setTheme(th); setIsShown(false); } }
+                                    />
+                            })}
+                            </div>
+                        </Stack>
                     </div>
                     <style dangerouslySetInnerHTML={{ __html: bodyNoScrollCss }}></style>
                 </div>
@@ -183,8 +199,15 @@ export let ThemeChooserFullScreen = () => {
 
 export let ThemeDarkButton = () => {
     let { isDark, setIsDark } = useContext(ThemeContext);
-    return <button className='faintButton' type="button" onClick={e => setIsDark(!isDark)}>{isDark ? 'Dark' : 'Light'}</button>
-}
+    return (<>
+        <button type="button" className="buttonHollowFaint"
+            onClick={(e) => setIsDark(!isDark)}
+        >
+            {isDark ? 'Dark' : 'Light'}
+        </button>
+        </>
+    );
+};
 
 export let ThemeDropdown = () => {
     let { theme, allThemes, setTheme, isDark, setIsDark } = useContext(ThemeContext);

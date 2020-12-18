@@ -66,6 +66,8 @@ saveBlocks(wiki, plantPage, [
 `,
     'Block 3 about plants. Block 3 about plants. Block 3 about plants. Block 3 about plants. '+
     'Block 3 about plants. Block 3 about plants.\n\nBlock 3 about plants. Block 3 about plants. '+
+    '\n## h2\n'+
+    '\n## h2\n'+
     'Block 3 about plants. Block 3 about plants.  Block 3 is all about... plants.',
     'Block4 with an image linked using markdown.'+
     '\n\n![img-alt-text](https://images.unsplash.com/photo-1550065180-82c533e847b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1354&q=80)',
