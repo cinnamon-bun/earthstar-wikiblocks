@@ -1,3 +1,11 @@
+# Wikiblocks
+
+A wiki / blogging system for [Earthstar](https://github.com/earthstar-project/earthstar).
+
+A work in progress!
+
+---
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
