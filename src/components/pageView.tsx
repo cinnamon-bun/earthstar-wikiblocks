@@ -4,6 +4,17 @@ import { log } from '../lib/util';
 import { Page } from '../lib/wikiLayer';
 import { BlockView } from './blockView';
 
+import {
+    Stack,
+    Box,
+    Cluster,
+    ClusterSpacer,
+    FlexItem,
+    FlexRow,
+    FlexSpacer,
+} from './layouts';
+
+
 import './pageAndBlocks.css';
 
 export interface PageViewProps {
@@ -39,13 +50,13 @@ export let PageView = (props: PageViewProps) => {
         ];
     }
     return (
-        <div className="pageView">
-            <h1>{page.title}</h1>
+        <Stack className="pageView">
+            <h1 className="pageTitle">{page.title}</h1>
             <div className="owner">{owner}</div>
             <div className="pageBlocks">
                 {items}
             </div>
-        </div>
+        </Stack>
     );
 };
 

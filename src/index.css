@@ -1,11 +1,30 @@
 /* overall settings */
 :root {
+
+    --test-border-width: 0px;
+
+    --ratio: 1.5;
+    --s-5: calc(var(--s-4) / var(--ratio));
+    --s-4: calc(var(--s-3) / var(--ratio));
+    --s-3: calc(var(--s-2) / var(--ratio));
+    --s-2: calc(var(--s-1) / var(--ratio));
+    --s-1: calc(var(--s0) / var(--ratio));
+    --s0: 1rem;
+    --s1: calc(var(--s0) * var(--ratio));
+    --s2: calc(var(--s1) * var(--ratio));
+    --s3: calc(var(--s2) * var(--ratio));
+    --s4: calc(var(--s3) * var(--ratio));
+    --s5: calc(var(--s4) * var(--ratio));
+
     --button-column-width: 5ch;
+
     --round-button: 10px;
     --round-card: 5px;
+
     --fadein-time: 0.08s;
     --fadeout-time: 0.4s;
-    --hidden-controls-opacity: 0.0;
+
+    --hidden-controls-opacity: 0;
 }
 
 /* start off with a default base16 theme which we'll override from javascript later.
@@ -55,10 +74,20 @@ body {
     box-sizing: border-box;
 }
 
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
 a {
     color: var(--base0E);
 }
 
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+.left {
+    text-align: left;
+}
+.center {
+    text-align: center;
+}
+.right {
+    text-align: right;
 }

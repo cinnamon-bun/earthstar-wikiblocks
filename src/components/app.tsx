@@ -22,7 +22,15 @@ import {
     ThemeDarkButton,
 } from './theme';
 
-import './app.css';
+import {
+    Stack,
+    Box,
+    Cluster,
+    ClusterSpacer,
+    FlexItem,
+    FlexRow,
+    FlexSpacer,
+} from './layouts';
 
 //================================================================================
 // setup
@@ -88,14 +96,15 @@ export let App = () => {
     return (
         <ThemeContext.Provider value={initialThemeValue}>
             <SetThemeCssVariables />
-            <div className="app">
-                <div style={{textAlign: 'right'}}>
-                    <ThemeChooserFullScreen />
-                    <ThemeDarkButton />
-                    {/*<ThemeDropdown />*/}
-                </div>
-                <PageView page={plantPage} />
-            </div>
+            <Box>
+                <Stack>
+                    <Cluster align="right">
+                        <ThemeChooserFullScreen />
+                        <ThemeDarkButton />
+                    </Cluster>
+                    <PageView page={plantPage} />
+                </Stack>
+            </Box>
         </ThemeContext.Provider>
     );
 }

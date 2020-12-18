@@ -1,0 +1,61 @@
+.box {
+    border: var(--test-border-width) solid #0f0;
+    padding: var(--s0);
+}
+
+/*-----------------------------------------------*/
+
+.stack {
+    border: var(--test-border-width) solid red;
+}
+.stack > * {
+    border: var(--test-border-width) dotted red;
+}
+.stack > * + * {
+    margin-top: var(--s0);
+}
+
+/*-----------------------------------------------*/
+
+.cluster {
+    border: var(--test-border-width) solid magenta;
+    --space: var(--s-1); /* vertical and horizontal margins between items */
+    overflow: hidden;
+}
+.clusterInner {
+    /* second container div */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;  /* horizontal alignment */
+    align-items: center;  /* vertical alignment */
+    margin: calc(var(--space) / 2 * -1);
+}
+.clusterInner.cluster-align-right {
+    justify-content: flex-end;
+}
+.clusterInner.cluster-align-center {
+    justify-content: center;
+}
+.clusterInner.cluster-align-justify {
+    justify-content: space-between;
+}
+.clusterInner.cluster-no-wrap {
+    flex-wrap: nowrap;
+}
+.cluster > * > * {
+    border: var(--test-border-width) dotted magenta;
+    margin: calc(var(--space) / 2);
+}
+.clusterSpacer {
+    margin: 0;
+}
+
+/*-----------------------------------------------*/
+
+.flexRow {
+    border: var(--test-border-width) solid cyan;
+    display: flex;
+}
+.flexItem {
+    border: var(--test-border-width) dotted cyan;
+}
