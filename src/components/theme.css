@@ -44,19 +44,19 @@
         color: #fff;
     }
     .themeChooserFullScreenPanel .themeFlag {
-        height: 1.5em;
+        height: 1.4em;
+        border-radius: 15px;
     }
 
 .themeFlag {
     display: flex;
     height: 8px;
-    border: 8px solid var(--base00);
+    border: 10px solid var(--base00);
     background: var(--base00);
-    border-radius: 100px;
     overflow: hidden;
 }
     .themeFlagStripe {
         flex: 1 1 auto;
         text-align: center;
-        line-height: 1.5em;
+        line-height: 1.4em;
     }
