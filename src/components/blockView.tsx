@@ -3,8 +3,8 @@ import ReactMarkdown from 'react-markdown'
 
 //import { timestampToHuman } from '../lib/util';
 import { Block } from '../lib/wikiLayer';
-import { WikiLayerContext } from './wikiLayerContext';
-import { KeypairContext } from './keypairContext';
+import { WikiLayerContext } from '../hooks/wikiLayerContext';
+import { KeypairContext } from '../hooks/keypairContext';
 
 import './pageAndBlocks.css';
 
@@ -28,20 +28,19 @@ export let BlockView = (props: BlockViewProps) => {
         setEditingText(e.target.value);
     }
     let saveEditing = () => {
-        // TODO: save to earthstar
-        if (editingText !== null && keypair !== null) {
-
+        if (editingText !== null && keypair !== null && wiki !== null) {
             // HACK until we can get notified by the wikiLayer that a change has happened
             block.text = editingText.trim();
 
             wiki.saveBlockText(keypair, {...block, text: editingText.trim()});
-            setEditingText(null);
         }
+        setEditingText(null);
     };
     let cancelEditing = () => {
         setEditingText(null);
     };
 
+    //--------------------------------------------------
     let actionButtons: JSX.Element[] = [];
     if (keypair !== null) {
         if (editingText === null) {

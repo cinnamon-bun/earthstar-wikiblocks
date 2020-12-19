@@ -5,28 +5,35 @@ import {
     ValidatorEs4,
 } from 'earthstar';
 
+// lib
 import { log } from '../lib/util';
 import {
     Page,
     WikiLayer,
 } from '../lib/wikiLayer';
-import { WikiLayerContext } from './wikiLayerContext';
-import { KeypairContext } from './keypairContext';
-
 import {
-    Stack,
+    Theme,
+    allThemes,
+    defaultTheme
+} from '../lib/theme';
+
+// hooks
+import { KeypairContext } from '../hooks/keypairContext';
+import { StorageContext } from '../hooks/storageContext';
+import { ThemeContext } from '../hooks/themeContext';
+import { WikiLayerContext } from '../hooks/wikiLayerContext';
+
+// components
+import {
     Box,
     Cluster,
+    Stack,
 } from './layouts';
 import {
     SetThemeCssVariables,
-    Theme,
     ThemeChooserFullScreen,
-    ThemeContext,
-    allThemes,
-    defaultTheme,
     ThemeDarkButton,
-} from './theme';
+} from './themeComponents';
 import { PageView } from './pageView';
 
 
@@ -40,10 +47,11 @@ const KEYPAIR1: AuthorKeypair = {
     secret: "br35uewh3bvajzm5g5exmzmt4wzpp7rvyoghwcrrx7l5eqabtmobq"
 }
 const AUTHOR1 = KEYPAIR1.address;
-const WORKSPACE = '+test.abc';
 
-const storage = new StorageMemory([ValidatorEs4], WORKSPACE);
-const wiki = new WikiLayer(storage);
+const WORKSPACE = '+test.abc';
+const STORAGE = new StorageMemory([ValidatorEs4], WORKSPACE);
+
+const WIKI = new WikiLayer(STORAGE);
 
 let saveBlocks = (wiki: WikiLayer, page: Page, texts: string[]) => {
     for (let blockText of texts) {
@@ -52,8 +60,8 @@ let saveBlocks = (wiki: WikiLayer, page: Page, texts: string[]) => {
     }
 }
 
-let plantPage = wiki.getPage('common', 'Native Plants');
-saveBlocks(wiki, plantPage, [
+let plantPage = WIKI.getPage('common', 'Native Plants');
+saveBlocks(WIKI, plantPage, [
     'Block 1 about [plants]().',
 `
 ## Block 2 about plants.
@@ -70,16 +78,16 @@ saveBlocks(wiki, plantPage, [
     'Block4 with an image linked using markdown.'+
     '\n\n![img-alt-text](https://images.unsplash.com/photo-1550065180-82c533e847b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1354&q=80)',
 ]);
-let blogPage = wiki.getPage(AUTHOR1, 'My Blog');
-saveBlocks(wiki, blogPage, [
+let blogPage = WIKI.getPage(AUTHOR1, 'My Blog');
+saveBlocks(WIKI, blogPage, [
     'Block 1 about my blog.',
     'Block 2 about my blog.',
 ]);
 
 log('setup', '...done');
 
-plantPage.blocks = wiki.loadPageBlocks(plantPage);
-blogPage.blocks = wiki.loadPageBlocks(blogPage);
+plantPage.blocks = WIKI.loadPageBlocks(plantPage);
+blogPage.blocks = WIKI.loadPageBlocks(blogPage);
 
 //================================================================================
 
@@ -94,21 +102,23 @@ export let App = () => {
         setIsDark,
     };
     return (
+        <StorageContext.Provider value={STORAGE}>
+        <KeypairContext.Provider value={KEYPAIR1}>
+        <WikiLayerContext.Provider value={WIKI}>
         <ThemeContext.Provider value={initialThemeValue}>
-            <KeypairContext.Provider value={KEYPAIR1}>
-                <WikiLayerContext.Provider value={wiki}>
-                    <SetThemeCssVariables />
-                    <Box>
-                        <Stack>
-                            <Cluster align="right">
-                                <ThemeChooserFullScreen />
-                                <ThemeDarkButton />
-                            </Cluster>
-                            <PageView page={plantPage} />
-                        </Stack>
-                    </Box>
-                </WikiLayerContext.Provider>
-            </KeypairContext.Provider>
+            <SetThemeCssVariables />
+            <Box>
+                <Stack>
+                    <Cluster align="right">
+                        <ThemeChooserFullScreen />
+                        <ThemeDarkButton />
+                    </Cluster>
+                    <PageView page={plantPage} />
+                </Stack>
+            </Box>
         </ThemeContext.Provider>
+        </WikiLayerContext.Provider>
+        </KeypairContext.Provider>
+        </StorageContext.Provider>
     );
 }
