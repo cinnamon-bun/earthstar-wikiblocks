@@ -1,6 +1,7 @@
 import * as React from 'react';
 
-import './layouts.css';
+import '../css/index.css';
+import '../css/layouts.css';
 
 interface LayoutProps {
     align?: 'left' | 'center' | 'right',

@@ -1,14 +1,20 @@
 import React from 'react';
 
+// lib
 import { log } from '../lib/util';
 import { Page } from '../lib/wikiLayer';
 
+// hooks
+
+// components
 import {
     Stack,
 } from './layouts';
 import { BlockView } from './blockView';
 
-import './pageAndBlocks.css';
+// css
+import '../css/index.css';
+import '../css/pageAndBlocks.css';
 
 //================================================================================
 

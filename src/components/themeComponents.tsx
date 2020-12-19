@@ -17,8 +17,8 @@ import {
 } from './layouts';
 
 // css
-import '../index.css';
-import './theme.css';
+import '../css/index.css';
+import '../css/theme.css';
 
 //================================================================================
 // APPLY CSS VARS

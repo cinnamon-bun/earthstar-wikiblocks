@@ -36,6 +36,8 @@ import {
 } from './themeComponents';
 import { PageView } from './pageView';
 
+// css
+import '../css/index.css';
 
 //================================================================================
 // setup

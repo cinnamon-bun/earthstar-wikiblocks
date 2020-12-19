@@ -1,12 +1,19 @@
 import React, { useContext, useState } from 'react';
 import ReactMarkdown from 'react-markdown'
 
+// lib
 //import { timestampToHuman } from '../lib/util';
 import { Block } from '../lib/wikiLayer';
+
+// hooks
 import { WikiLayerContext } from '../hooks/wikiLayerContext';
 import { KeypairContext } from '../hooks/keypairContext';
 
-import './pageAndBlocks.css';
+// components
+
+// css
+import '../css/index.css';
+import '../css/pageAndBlocks.css';
 
 //================================================================================
 
