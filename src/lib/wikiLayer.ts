@@ -44,9 +44,14 @@ export const APPNAME = 'wikiblocks-v1';
 //================================================================================
 // TYPES
 
+/* an Id is an optional id kind, a timestamp in microseconds, and some entropy:
+ bare id:         "1608062676116000-tTWPP"
+ block id:  "block:1608062676116000-tTWPP"
+*/
 type Id = string;
 
-type DocKind = 'block-doc';
+// a DocRoute holds all the pieces of an Earthstar path
+type DocKind = 'block-doc';  // in the future there will also be comment-doc, etc
 export interface DocRoute {
     kind: DocKind,
     owner: 'common' | AuthorAddress,
@@ -55,6 +60,7 @@ export interface DocRoute {
     filename: string,
 }
 
+// a Page is a collection of Blocks
 export interface Page {
     kind: 'page',
     owner: 'common' | AuthorAddress,
@@ -62,6 +68,7 @@ export interface Page {
     blocks?: Block[],
 }
 
+// a Block is a single block of markdown text
 export interface Block {
     kind: 'block',
     owner: 'common' | AuthorAddress,
@@ -97,6 +104,7 @@ export let getIdKind = (id: Id): string | null => {
     return id.split(':')[0];
 }
 
+// extract the timestamp from an id
 export let idToTimestamp = (id: string): number => {
     if (id.indexOf(':') !== -1) {
         id = id.split(':')[1];
@@ -108,12 +116,13 @@ export let idToTimestamp = (id: string): number => {
 //================================================================================
 // ROUTES
 
+// a Block has several Earthstar documents:
 let allowedBlockFilenames = [
-    'text.md',
+    'text.md',  // this is the "primary document" that determines if the block exists
     'sort.json',
 ];
 
-// return error message (as string) on failure to parse path
+// parse any Earthstar path into a DocRoute, or return error message (as string) on failure
 export let pathToRoute = (path: string): DocRoute | string => {
     let parts = path.split('/').slice(1);
     if (parts.length !== 5) { return 'wrong number of slashes'; }
@@ -149,6 +158,7 @@ export let pathToRoute = (path: string): DocRoute | string => {
     return { kind: kind, owner: owner, title: titleNoPct, id, filename };
 };
 
+// render a DocRoute back into an Earthstar path string
 export let routeToPath = (route: DocRoute): string => {
     let auth = route.owner === 'common' ? 'common' : '~' + route.owner;
     return `/${APPNAME}/${auth}/${encodeURIComponent(route.title)}/${route.id}/${route.filename}`;
@@ -164,10 +174,10 @@ export class WikiLayer {
         this.workspace = this.storage.workspace;
     }
     listPages(owner?: 'common' | AuthorAddress): Page[] {
-        // query Earthstar to list the existing pages.
-        // pages don't actually have documents, only blocks do, so
-        // this actually queries for blocks and then returns
-        // their pages (deduped).
+        // query Earthstar to list the existing Pages.
+        // Pages don't actually have documents, only Blocks do, so
+        // this actually queries for Blocks and then returns
+        // their deduped Pages.
 
         // build path prefix and query the storage
         let pathPrefix = `/${APPNAME}/`;
@@ -184,6 +194,8 @@ export class WikiLayer {
         // only keep block-doc text.md routes
         routes = routes.filter(r => r.kind === 'block-doc' && r.filename === 'text.md');
 
+        // TODO: skip empty blocks (deleted ones), but then we have to read the content of all these docs
+
         // turn doc routes into page objects
         let pages: Page[] = routes.map(r => ({
             kind: 'page',
@@ -191,7 +203,7 @@ export class WikiLayer {
             title: r.title,
         }));
 
-        // dedupe pages
+        // dedupe pages, which are already sorted by title
         let dedupedPages = [];
         let prev: Page | null = null;
         for (let thisPage of pages) {
@@ -281,13 +293,15 @@ export class WikiLayer {
         let paths = this.storage.paths({ pathPrefix });
         let routes = paths.map(pathToRoute).filter(r => typeof r !== 'string') as DocRoute[];
 
-        // cluster by block id
+        // turn routes into blocks
         let blocksById: Record<string, Block> = {};
         // first load the main document, 'text.md'
         for (let route of routes) {
             if (route.filename === 'text.md') {
                 let document = this.storage.getDocument(routeToPath(route));
                 if (document === undefined) { continue; }
+                // skip empty (deleted) docs
+                if (document.content === '') { continue; }
                 let block: Block = {
                     kind: 'block',
                     owner: page.owner,
@@ -315,8 +329,7 @@ export class WikiLayer {
             }
         }
 
-
-        // sort by sort values if present, otherwise use creation timestamp (as string)
+        // sort by sort values if present, otherwise use creation timestamp
         let blocks = Object.values(blocksById);
         sortBy(blocks, block => block.sort ? block.sort : block.creationTimestamp);
 
