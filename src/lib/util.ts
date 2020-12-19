@@ -1,3 +1,5 @@
+export type Thunk = () => void;
+
 export const ALPHA_LO = 'abcdefghijklmnopqrstuvwxyz';
 export const ALPHA_UP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 export const NUMS = '0123456789';

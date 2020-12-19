@@ -40,7 +40,7 @@ import { PageView } from './pageView';
 import '../css/index.css';
 
 //================================================================================
-// setup
+// SETUP
 
 log('setup', 'begin');
 

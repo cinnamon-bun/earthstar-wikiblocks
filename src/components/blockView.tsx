@@ -36,9 +36,8 @@ export let BlockView = (props: BlockViewProps) => {
     }
     let saveEditing = () => {
         if (editingText !== null && keypair !== null && wiki !== null) {
-            // HACK until we can get notified by the wikiLayer that a change has happened
-            block.text = editingText.trim();
-
+            //// HACK until we can get notified by the wikiLayer that a change has happened
+            //block.text = editingText.trim();
             wiki.saveBlockText(keypair, {...block, text: editingText.trim()});
         }
         setEditingText(null);

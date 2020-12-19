@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 // lib
 import { log } from '../lib/util';
-import { Page } from '../lib/wikiLayer';
+import { Page, Block } from '../lib/wikiLayer';
 
 // hooks
+import { WikiLayerContext } from '../hooks/wikiLayerContext';
 
 // components
 import {
@@ -24,19 +25,31 @@ export interface PageViewProps {
 export let PageView = (props: PageViewProps) => {
     let page = props.page;
     let owner = page.owner === 'common' ? 'anyone can edit' : 'by ' + page.owner.slice(0, 12) + '...';
+
+    let wiki = useContext(WikiLayerContext);
+    let [blocks, setBlocks] = useState<Block[]>([]);
+    useEffect(() => {
+        if (wiki === null) { return; }
+        let unsub = wiki.streamPageBlocks(page, (blocks) => {
+            setBlocks(blocks)
+        });
+        return unsub;
+    }, [wiki, page]);
+
+    // Make alternating list of AddBlock and BlockView components.
+    // Assume blocks are already sorted
+    //  and interpolate sort values between them for the AddBlock components
     let items = [];
-    // assume blocks are already sorted
-    // come up with some sort values between them for the AddBlock components
-    if (page.blocks?.length) {
-        let firstBlock = page.blocks[0];
-        let lastBlock = page.blocks[page.blocks.length-1];
+    if (blocks.length) {
+        let firstBlock = blocks[0];
+        let lastBlock = blocks[blocks.length-1];
         let sort0 = firstBlock.sort || firstBlock.creationTimestamp;
         let firstSort = sort0 * 0.75;
         items.push(<AddBlock key='first-add' sort={firstSort} />);
         items.push(<BlockView key='first-block' block={firstBlock} />);
-        for (let ii = 0; ii < page.blocks.length - 1; ii++) {
-            let block0 = page.blocks[ii];
-            let block1 = page.blocks[ii + 1];
+        for (let ii = 0; ii < blocks.length - 1; ii++) {
+            let block0 = blocks[ii];
+            let block1 = blocks[ii + 1];
             let sort0 = block0.sort || block0.creationTimestamp;
             let sort1 = block1.sort || block1.creationTimestamp;
             items.push(<AddBlock key={'add-' + ii} sort={(sort0 + sort1) / 2}/>);
@@ -50,6 +63,7 @@ export let PageView = (props: PageViewProps) => {
             <AddBlock key='a' sort={Date.now() * 1000}/>,
         ];
     }
+
     return (
         <Stack className="pageView">
             <h1 className="pageTitle">{page.title}</h1>
@@ -62,17 +76,17 @@ export let PageView = (props: PageViewProps) => {
 };
 
 export interface AddBlockProps {
-    sort: number,
+    sort: number;
 }
 export let AddBlock = (props: AddBlockProps) => {
     return (
         <div className="addBlock"
-            onClick={() => log('AddBlock', props.sort)}
+            onClick={() => log('AddBlock', 'clicked.  sort =', props.sort)}
         >
             <div className="buttonColumn">
                 <button type="button">add</button>
             </div>
-            <hr/>
+            <hr />
         </div>
-    )
-}
+    );
+};
