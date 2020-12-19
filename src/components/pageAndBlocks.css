@@ -86,6 +86,15 @@
             border: none;
             cursor: pointer;
         }
+        .blockRow .buttonColumn button.edit {
+            background-color: var(--base0D);
+        }
+        .blockRow .buttonColumn button.save {
+            background-color: var(--base0D);
+        }
+        .blockRow .buttonColumn button.cancel {
+            background-color: var(--base09);
+        }
 
     .blockRow .blockContent {
         border: var(--test-border-width) dashed #888;
@@ -95,14 +104,16 @@
         border-radius: var(--round-card);
         padding: var(--s-2);
         background-color: var(--base00);
+        /*
+        overflow: hidden;
         transition-property: box-shadow;
         transition-duration: var(--fadeout-time);
         box-shadow: 0px 0px 10px 3px transparent;
-        z-index: -10;  /* make box-shadow go behind everything else */
     }
     .blockRow:hover .blockContent {
         transition-duration: var(--fadein-time);
-        box-shadow: 0px 0px 10px 3px var(--base0D);
+        box-shadow: 0px 0px 10px 3px var(--base03);
+        */
     }
 
         /* ---- markdown ---- */
@@ -125,6 +136,25 @@
             background-color: var(--base02);
         }
         /* ---- /markdown ---- */
+
+        .blockRow .blockContent textarea {
+            color: var(--base07);
+            background-color: var(--base00);
+            border: 2px solid var(--base0D);
+
+            box-sizing: border-box;
+            width: calc(100% + var(--s-2) * 2);
+            height: 15em;
+            padding: var(--s-1);
+            margin: calc(var(--s-2) * -1);
+            border-radius: var(--round-button);
+
+            font-size: 85%;
+            font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+
+            resize: vertical;
+            overflow-x: hidden;
+        }
 
         .blockRow .blockContent .details {
             display: none;
