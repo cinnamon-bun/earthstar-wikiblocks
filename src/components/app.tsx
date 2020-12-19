@@ -10,27 +10,25 @@ import {
     Page,
     WikiLayer,
 } from '../lib/wikiLayer';
-import { PageView } from './pageView';
+import { WikiLayerContext } from './wikiLayerContext';
+import { KeypairContext } from './keypairContext';
+
+import {
+    Stack,
+    Box,
+    Cluster,
+} from './layouts';
 import {
     SetThemeCssVariables,
     Theme,
-    ThemeDropdown,
     ThemeChooserFullScreen,
     ThemeContext,
     allThemes,
     defaultTheme,
     ThemeDarkButton,
 } from './theme';
+import { PageView } from './pageView';
 
-import {
-    Stack,
-    Box,
-    Cluster,
-    ClusterSpacer,
-    FlexItem,
-    FlexRow,
-    FlexSpacer,
-} from './layouts';
 
 //================================================================================
 // setup
@@ -97,16 +95,20 @@ export let App = () => {
     };
     return (
         <ThemeContext.Provider value={initialThemeValue}>
-            <SetThemeCssVariables />
-            <Box>
-                <Stack>
-                    <Cluster align="right">
-                        <ThemeChooserFullScreen />
-                        <ThemeDarkButton />
-                    </Cluster>
-                    <PageView page={plantPage} />
-                </Stack>
-            </Box>
+            <KeypairContext.Provider value={KEYPAIR1}>
+                <WikiLayerContext.Provider value={wiki}>
+                    <SetThemeCssVariables />
+                    <Box>
+                        <Stack>
+                            <Cluster align="right">
+                                <ThemeChooserFullScreen />
+                                <ThemeDarkButton />
+                            </Cluster>
+                            <PageView page={plantPage} />
+                        </Stack>
+                    </Box>
+                </WikiLayerContext.Provider>
+            </KeypairContext.Provider>
         </ThemeContext.Provider>
     );
 }

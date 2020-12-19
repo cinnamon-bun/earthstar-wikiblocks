@@ -110,6 +110,7 @@ a {
     font-weight: bold;
     padding: 5px 7px;
     font: inherit;
+    cursor: pointer;
 }
 
 .buttonHollowStrong {
@@ -120,6 +121,7 @@ a {
     font-weight: bold;
     padding: 5px 7px;
     font: inherit;
+    cursor: pointer;
 }
 
 .buttonSolidFaint {
@@ -129,6 +131,7 @@ a {
     font-weight: bold;
     padding: 5px 7px;
     font: inherit;
+    cursor: pointer;
 }
 
 .buttonSolidStrong {
@@ -138,4 +141,5 @@ a {
     font-weight: bold;
     padding: 5px 7px;
     font: inherit;
+    cursor: pointer;
 }

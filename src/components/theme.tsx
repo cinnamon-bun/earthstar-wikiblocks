@@ -1,18 +1,8 @@
-import React, { useState } from 'react';
-import { createContext, useContext } from 'react';
+import React, { useState, createContext, useContext } from 'react';
 import * as themes from 'base16';
-
-import { log } from '../lib/util';
 
 import {
     Stack,
-    StackTight,
-    Box,
-    Cluster,
-    ClusterSpacer,
-    FlexItem,
-    FlexRow,
-    FlexSpacer,
 } from './layouts';
 
 import '../index.css';

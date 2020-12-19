@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
-import { timestampToHuman } from '../lib/util';
-import { Block } from '../lib/wikiLayer';
+import React, { useContext, useState } from 'react';
 import ReactMarkdown from 'react-markdown'
 
+//import { timestampToHuman } from '../lib/util';
+import { Block } from '../lib/wikiLayer';
+import { WikiLayerContext } from './wikiLayerContext';
+import { KeypairContext } from './keypairContext';
+
 import './pageAndBlocks.css';
+
+//================================================================================
 
 export interface BlockViewProps {
     block: Block;
 }
 export let BlockView = (props: BlockViewProps) => {
+    let wiki = useContext(WikiLayerContext);
+    let keypair = useContext(KeypairContext);
+
     let [editingText, setEditingText] = useState<string | null>(null);  // null means not editing
     let block = props.block;
+
+    //--------------------------------------------------
     let beginEditing = () => {
         setEditingText(block.text);
     };
@@ -19,21 +29,38 @@ export let BlockView = (props: BlockViewProps) => {
     }
     let saveEditing = () => {
         // TODO: save to earthstar
-        setEditingText(null);
+        if (editingText !== null && keypair !== null) {
+
+            // HACK until we can get notified by the wikiLayer that a change has happened
+            block.text = editingText.trim();
+
+            wiki.saveBlockText(keypair, {...block, text: editingText.trim()});
+            setEditingText(null);
+        }
     };
     let cancelEditing = () => {
         setEditingText(null);
     };
+
+    let actionButtons: JSX.Element[] = [];
+    if (keypair !== null) {
+        if (editingText === null) {
+            actionButtons = [
+                <button key='edit' type="button" className='edit' onClick={beginEditing}>edit</button>,
+            ];
+        } else {
+            actionButtons = [
+                <button key='save'   type="button" className='save' onClick={saveEditing}>save</button>,
+                <button key='cancel' type="button" className='cancel' onClick={cancelEditing}>cancel</button>,
+            ]
+        }
+    }
+
+    //--------------------------------------------------
     return (
         <div className="blockRow">
             <div className="buttonColumn">
-                {editingText === null
-                    ? <button type="button" className='edit' onClick={beginEditing}>edit</button>
-                    : <>
-                        <button type="button" className='save' onClick={saveEditing}>save</button>
-                        <button type="button" className='cancel' onClick={cancelEditing}>cancel</button>
-                    </>
-                }
+                {actionButtons}
             </div>
             <div className="blockContent">
                 {editingText === null

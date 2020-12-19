@@ -1,21 +1,16 @@
-import { range } from 'earthstar';
 import React from 'react';
+
 import { log } from '../lib/util';
 import { Page } from '../lib/wikiLayer';
-import { BlockView } from './blockView';
 
 import {
     Stack,
-    Box,
-    Cluster,
-    ClusterSpacer,
-    FlexItem,
-    FlexRow,
-    FlexSpacer,
 } from './layouts';
-
+import { BlockView } from './blockView';
 
 import './pageAndBlocks.css';
+
+//================================================================================
 
 export interface PageViewProps {
     page: Page;
