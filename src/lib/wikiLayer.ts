@@ -2,13 +2,12 @@ import {
     AuthorAddress,
     AuthorKeypair,
     IStorage,
-    //ValidationError,
     ValidatorEs4,
     WorkspaceAddress,
-    notErr,
     WriteResult,
-    Emitter,
+    notErr,
 } from 'earthstar';
+
 import {
     Thunk,
     entropyString,

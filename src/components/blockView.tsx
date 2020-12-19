@@ -6,8 +6,8 @@ import ReactMarkdown from 'react-markdown'
 import { Block } from '../lib/wikiLayer';
 
 // hooks
-import { WikiLayerContext } from '../hooks/wikiLayerContext';
 import { KeypairContext } from '../hooks/keypairContext';
+import { WikiLayerContext } from '../hooks/wikiLayerContext';
 
 // components
 

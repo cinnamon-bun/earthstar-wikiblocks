@@ -8,9 +8,7 @@ import { Page, Block } from '../lib/wikiLayer';
 import { WikiLayerContext } from '../hooks/wikiLayerContext';
 
 // components
-import {
-    Stack,
-} from './layouts';
+import { Stack } from './layouts';
 import { BlockView } from './blockView';
 
 // css

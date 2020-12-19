@@ -1,4 +1,16 @@
+
+//================================================================================
+// BASIC TYPES
+
 export type Thunk = () => void;
+
+//================================================================================
+// DEBUGGING
+
+export let log = (name: string, ...args: any[]) => console.log(name + ' |', ...args);
+
+//================================================================================
+// CHARS AND ENTROPY
 
 export const ALPHA_LO = 'abcdefghijklmnopqrstuvwxyz';
 export const ALPHA_UP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -11,24 +23,14 @@ export let randomChar = (str: string): string =>
 export let entropyString = (len: number): string =>
     Array(len).fill(0).map(x => randomChar(ALPHANUM)).join('');
 
+//================================================================================
+// TIME
+
 let _lastTimestamp = 0;
 export let monotonicMicroseconds = (): number => {
     let thisTimestamp = Math.max(Date.now() * 1000, _lastTimestamp + 1);
     _lastTimestamp = thisTimestamp;
     return thisTimestamp;
-};
-
-// random integer inclusive of endpoints
-export let randInt = (lo: number, hi: number): number =>
-    Math.floor(Math.random() * (hi - lo + 1)) + lo;
-
-export let randFloat = (lo: number, hi: number): number =>
-    Math.random() * (hi - lo) + lo;
-
-let _cmpFn = <T>(a: T, b: T): number =>
-    (a > b) ? 1 : ((a < b) ? -1 : 0);
-export let sortBy = <T>(arr: T[], fn: (item: T) => any) => {
-    arr.sort((a, b) => _cmpFn(fn(a), fn(b)));
 };
 
 export let timestampToHuman = (timestamp: number): string => {
@@ -40,4 +42,23 @@ export let timestampToHuman = (timestamp: number): string => {
     return d.toLocaleString();
 }
 
-export let log = (name: string, ...args: any[]) => console.log(name + ' |', ...args);
+//================================================================================
+// RANDOM NUMBERS
+
+// random integer inclusive of endpoints
+export let randInt = (lo: number, hi: number): number =>
+    Math.floor(Math.random() * (hi - lo + 1)) + lo;
+
+export let randFloat = (lo: number, hi: number): number =>
+    Math.random() * (hi - lo) + lo;
+
+//================================================================================
+// SORTING
+
+let _diffSign = <T>(a: T, b: T): number =>
+    (a > b) ? 1 : ((a < b) ? -1 : 0);
+
+export let sortBy = <T>(arr: T[], fn: (item: T) => any) : void => {
+    arr.sort((a, b) => _diffSign(fn(a), fn(b)));
+};
+
