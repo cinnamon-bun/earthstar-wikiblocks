@@ -7,7 +7,12 @@ export type Thunk = () => void;
 //================================================================================
 // DEBUGGING
 
-export let log = (name: string, ...args: any[]) => console.log(name + ' |', ...args);
+const SHOW_LOGS = true;
+export let log = (name: string, ...args: any[]) => {
+    if (SHOW_LOGS) {
+        console.log(name + ' |', ...args)
+    }
+}
 
 //================================================================================
 // CHARS AND ENTROPY

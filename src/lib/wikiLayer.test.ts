@@ -206,20 +206,22 @@ describe('WikiLayer', () => {
         expect(suzPagesListed[0]).toStrictEqual(suzPage);
     });
 
-    /*
-    test('loadPageBlocks', () => {
+    test('streamPageBlocks', (done) => {
         let suzPages = wiki.listPages(AUTHOR1);
+        expect(suzPages.length).toBe(1);
         for (let page of suzPages) {
-            let blocks = wiki.loadPageBlocks(page);
-            expect(blocks.length).toBe(3);
-            // clear the edit timestamps since they won't match after a roundtrip 
-            // through Earthstar -- Earthstar will set the timestamp itself when writing
-            let foundBlocks = blocks.map(b => ({...b, editTimestamp: -1}));
-            // block 3 sorts to the middle
-            let expectedBlocks = [suzBlock1, suzBlock3, suzBlock2].map(b => ({...b, editTimestamp: -1}));
-            expect(foundBlocks).toStrictEqual(expectedBlocks);
+            let unsub = wiki.streamPageBlocks(page, blocks => {
+                expect(blocks.length).toBe(3);
+                // clear the edit timestamps since they won't match after a roundtrip 
+                // through Earthstar -- Earthstar will set the timestamp itself when writing
+                let foundBlocks = blocks.map(b => ({...b, editTimestamp: -1}));
+                // block 3 sorts to the middle
+                let expectedBlocks = [suzBlock1, suzBlock3, suzBlock2].map(b => ({...b, editTimestamp: -1}));
+                expect(foundBlocks).toStrictEqual(expectedBlocks);
+                done();
+            });
+            unsub();
         }
     });
-    */
 
 });
