@@ -358,41 +358,57 @@ export class WikiLayer {
             let route = pathToRoute(doc.path);
             if (typeof route === 'string') { return; }
             if (route.owner !== page.owner || route.title !== page.title) { return; }
-            if (route.kind === 'block-doc') {
-                log('WikiLayer.streamPageBlocks', 'onWrite: ...related to this Page...');
-                // it is related to this Page.
-                // first make sure the Block exists in our cache
-                let block: Block = blocksById[route.id];
-                if (block === undefined) {
-                    log('WikiLayer.streamPageBlocks', 'onWrite: ...making new block...');
-                    block = {
-                        kind: 'block',
-                        owner: page.owner,
-                        title: page.title,
-                        id: route.id,
-                        author: doc.author,
-                        creationTimestamp: idToTimestamp(route.id),
-                        editTimestamp: doc.timestamp,
-                        text: '',
-                    }
-                } else {
-                    log('WikiLayer.streamPageBlocks', 'onWrite: ...updating existing block...');
+            if (route.kind !== 'block-doc') { return; }
+
+            // it is related to this Page.
+            log('WikiLayer.streamPageBlocks', 'onWrite: ...related to this Page...');
+
+            let wasChanged = false;
+
+            // first make sure the Block exists in our cache
+            let block: Block = blocksById[route.id];
+            if (block === undefined) {
+                log('WikiLayer.streamPageBlocks', 'onWrite: ...making new block...');
+                block = {
+                    kind: 'block',
+                    owner: page.owner,
+                    title: page.title,
+                    id: route.id,
+                    author: doc.author,
+                    creationTimestamp: idToTimestamp(route.id),
+                    editTimestamp: doc.timestamp,
+                    text: '',
                 }
-                // update it from the Earthstar doc that just changed
-                if (route.filename === 'text.md') {
-                    log('WikiLayer.streamPageBlocks', 'onWrite: ...with new text content...');
+            } else {
+                log('WikiLayer.streamPageBlocks', 'onWrite: ...updating existing block...');
+            }
+
+            // update it from the Earthstar doc that just changed
+            if (route.filename === 'text.md') {
+                log('WikiLayer.streamPageBlocks', 'onWrite: ...with new text content...');
+                wasChanged = block.text !== doc.content;
+                if (wasChanged) {
                     block = {...block, text: doc.content, editTimestamp: doc.timestamp };
-                } else if (route.filename === 'sort.json') {
-                    log('WikiLayer.streamPageBlocks', 'onWrite: ...with new sort...');
-                    let sort: number = +doc.content;
-                    if (!isNaN(sort)) {
+                }
+            } else if (route.filename === 'sort.json') {
+                log('WikiLayer.streamPageBlocks', 'onWrite: ...with new sort...');
+                let sort: number = +doc.content;
+                if (!isNaN(sort)) {
+                    wasChanged = block.sort !== sort;
+                    if (wasChanged) {
                         block = {...block, sort };
                     }
                 }
-                Object.freeze(block);
-                // save it back to the cache
-                blocksById[route.id] = block;
             }
+            Object.freeze(block);
+
+            if (!wasChanged) {
+                log('WikiLayer.streamPageBlocks', 'onWrite: ...nothing changed, bailing out early.');
+                return;
+            }
+
+            // save it back to the cache
+            blocksById[route.id] = block;
 
             // generate a new sorted list of blocks...
             let blocks: Block[] = Object.values(blocksById);

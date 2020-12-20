@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState } from 'react';
 
 // lib
 import { log } from '../lib/util';
@@ -9,6 +9,7 @@ import { WikiLayerContext } from '../hooks/wikiLayerContext';
 
 // components
 import { Stack } from './layouts';
+import { AddBlock } from './addBlock';
 import { BlockView } from './blockView';
 
 // css
@@ -20,7 +21,7 @@ import '../css/pageAndBlocks.css';
 export interface PageViewProps {
     page: Page;
 }
-export let PageView = (props: PageViewProps) => {
+export let PageView = memo(function PageView(props: PageViewProps) {
     log('PageView', '---render---', props.page.title);
 
     let page = props.page;
@@ -75,21 +76,4 @@ export let PageView = (props: PageViewProps) => {
             </div>
         </Stack>
     );
-};
-
-export interface AddBlockProps {
-    sort: number;
-}
-export let AddBlock = (props: AddBlockProps) => {
-    log('AddBlock', '---render---', props.sort);
-    return (
-        <div className="addBlock"
-            onClick={() => log('AddBlock', 'clicked.  sort =', props.sort)}
-        >
-            <div className="buttonColumn">
-                <button type="button">add</button>
-            </div>
-            <hr />
-        </div>
-    );
-};
+});

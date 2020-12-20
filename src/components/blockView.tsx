@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, memo } from 'react';
 import ReactMarkdown from 'react-markdown'
 
 // lib
@@ -21,7 +21,7 @@ import { log } from '../lib/util';
 export interface BlockViewProps {
     block: Block;
 }
-export let BlockView = (props: BlockViewProps) => {
+export let BlockView = memo(function BlockView(props: BlockViewProps) {
     log('BlockView', '---render---', props.block.id);
 
     let wiki = useContext(WikiLayerContext);
@@ -90,4 +90,4 @@ export let BlockView = (props: BlockViewProps) => {
             </div>
         </div>
     );
-};
+});

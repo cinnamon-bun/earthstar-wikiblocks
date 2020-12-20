@@ -28,7 +28,7 @@ interface ThemeVariablesProps {
     selector?: string,
 }
 export let SetThemeCssVariables = (props: ThemeVariablesProps) => {
-    let { theme, allThemes, setTheme, isDark, setIsDark } = useContext(ThemeContext);
+    let { theme, /*allThemes, setTheme,*/ isDark, /*setIsDark*/ } = useContext(ThemeContext);
     theme = props.theme || theme;
     if (!isDark) { theme = invertTheme(theme); }
     return <style dangerouslySetInnerHTML={{__html: themeToCssVars(theme, props.selector || ':root')}}></style>;
@@ -142,7 +142,7 @@ export let ThemeDarkButton = () => {
 };
 
 export let ThemeDropdown = () => {
-    let { theme, allThemes, setTheme, isDark, setIsDark } = useContext(ThemeContext);
+    let { theme, allThemes, setTheme, /*isDark, setIsDark*/ } = useContext(ThemeContext);
     return <div className='themeDropdown'>
         <select value={theme.scheme} onChange={e => setTheme(findThemeByName(e.target.value))}>
             {allThemes.map(th =>
