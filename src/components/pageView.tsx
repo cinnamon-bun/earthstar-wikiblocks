@@ -47,26 +47,26 @@ export let PageView = memo(function PageView(props: PageViewProps) {
         items = [<div key='loading'></div>];
     } else if (blocks.length === 0) {
         items = [
-            <AddBlock key='only-add' sort={Date.now() * 1000}/>,
+            <AddBlock key='only-add' page={page} sort={Date.now() * 1000}/>,
         ];
     } else {
         let firstBlock = blocks[0];
         let lastBlock = blocks[blocks.length-1];
         let sort0 = firstBlock.sort || firstBlock.creationTimestamp;
         let firstSort = sort0 * 0.75;
-        items.push(<AddBlock key='first-add' sort={firstSort} />);
+        items.push(<AddBlock key='first-add' page={page} sort={firstSort} />);
         items.push(<BlockView key={firstBlock.id} block={firstBlock} />);
         for (let ii = 0; ii < blocks.length - 1; ii++) {
             let block0 = blocks[ii];
             let block1 = blocks[ii + 1];
             let sort0 = block0.sort || block0.creationTimestamp;
             let sort1 = block1.sort || block1.creationTimestamp;
-            items.push(<AddBlock key={'add-' + ii} sort={(sort0 + sort1) / 2}/>);
+            items.push(<AddBlock key={'add-' + ii} page={page} sort={(sort0 + sort1) / 2}/>);
             items.push(<BlockView key={block1.id} block={block1} />);
         }
         let sort1 = lastBlock.sort || lastBlock.creationTimestamp;
         let lastSort = Math.max(sort1 + 10000, Date.now() * 1000);
-        items.push(<AddBlock key='last-add' sort={lastSort} />);
+        items.push(<AddBlock key='last-add' page={page} sort={lastSort} />);
     }
 
     return (
