@@ -1,6 +1,7 @@
 import {
     AuthorAddress,
     AuthorKeypair,
+    Document,
     IStorage,
     ValidatorEs4,
     WorkspaceAddress,
@@ -72,15 +73,33 @@ export interface Page {
 
 // a Block is a single block of markdown text
 export interface Block {
+    // from the Page (from earthstar path)
     kind: 'block',
     owner: 'common' | AuthorAddress,
     title: string,
     id: Id,
-    author: AuthorAddress,
     creationTimestamp: number,  // from id
+    // from text.md
+    author: AuthorAddress,
     editTimestamp: number,  // from Earthstar document timestamp
-    sort?: number,  // microsecond float, defaults to timestamp if not set in a document
     text: string,  // markdown
+    // from sort.json
+    sort?: number,  // microsecond float, defaults to timestamp if not set in a document
+}
+
+export interface PartialBlock {
+    // from the Page (from earthstar path)
+    kind: 'block',
+    owner: 'common' | AuthorAddress,
+    title: string,
+    id: Id,
+    creationTimestamp: number,  // from id
+    // from text.md
+    author?: AuthorAddress,
+    editTimestamp?: number,  // from Earthstar document timestamp
+    text?: string,  // markdown
+    // from sort.json
+    sort?: number,  // microsecond float, defaults to timestamp if not set in a document
 }
 
 //================================================================================
@@ -164,6 +183,19 @@ export let pathToRoute = (path: string): DocRoute | string => {
 export let routeToPath = (route: DocRoute): string => {
     let auth = route.owner === 'common' ? 'common' : '~' + route.owner;
     return `/${APPNAME}/${auth}/${encodeURIComponent(route.title)}/${route.id}/${route.filename}`;
+}
+
+export let pageToPathPrefix = (page: Page): string => {
+    let baseRoute: DocRoute = {
+        kind: 'block-doc',
+        owner: page.owner,
+        title: page.title,
+        // this character is never allowed in Earthstar paths so it's safe to use 
+        // as a splitter here
+        id: '|',
+        filename: 'foo',
+    };
+    return routeToPath(baseRoute).split('|')[0];
 }
 
 //================================================================================
@@ -280,158 +312,132 @@ export class WikiLayer {
         });
         return result === WriteResult.Accepted;
     }
-    loadPageBlocks(page: Page): Block[] {
-        // from Earthstar, load a sorted list of the blocks for a given page.
-        let baseRoute: DocRoute = {
-            kind: 'block-doc',
-            owner: page.owner,
-            title: page.title,
-            // this character is never allowed in Earthstar paths so it's safe to use 
-            // as a splitter here
-            id: '|',
-            filename: 'foo',
-        };
-        let pathPrefix = routeToPath(baseRoute).split('|')[0];
-        let paths = this.storage.paths({ pathPrefix });
-        let routes = paths.map(pathToRoute).filter(r => typeof r !== 'string') as DocRoute[];
-
-        // turn routes into blocks
-        let blocksById: Record<string, Block> = {};
-        // first load the main document, 'text.md'
-        for (let route of routes) {
-            if (route.filename === 'text.md') {
-                let document = this.storage.getDocument(routeToPath(route));
-                if (document === undefined) { continue; }
-                let block: Block = {
-                    kind: 'block',
-                    owner: page.owner,
-                    title: page.title,
-                    id: route.id,
-                    author: document.author,
-                    creationTimestamp: idToTimestamp(route.id),
-                    editTimestamp: document.timestamp,
-                    text: document.content,
-                }
-                blocksById[route.id] = block;
-            }
-        }
-        // then load the sort document only if the text document was already loaded
-        for (let route of routes) {
-            if (route.filename === 'sort.json') {
-                let block = blocksById[route.id];
-                if (block === undefined) { continue; }
-                let document = this.storage.getDocument(routeToPath(route));
-                if (document === undefined) { continue; }
-                // content is a string; convert it to a float
-                let sort = +document.content;
-                if (isNaN(sort)) { continue; } 
-                block.sort = sort;
-            }
-        }
-
-        // sort by sort values if present, otherwise use creation timestamp
-        let blocks = Object.values(blocksById);
-        sortBy(blocks, block => block.sort ? block.sort : block.creationTimestamp);
-
-        blocks.forEach(b => Object.freeze(b));
-
-        return blocks;
-    }
     streamPageBlocks(page: Page, cb: (blocks: Block[]) => void): Thunk {
-        // Given a Page, starts a stream of calls to cb with the sorted Blocks in that Page.
-        // The first call to cb will happen during the execution of this function.
+        // Given a Page, starts a stream of calls to cb with the sorted Block array for that Page.
+        // The first call to cb will happen during the execution of this function after the
+        //  batch load completes.
         // Each later call will send a new array holding all the same Block objects as before,
         //  except any Blocks that have changed will be new objects.
         // Returns an unsub function which stops the stream.
 
-        log('WikiLayer.streamPageBlocks', 'setup starting');
+        log('WikiLayer.indexPageBlocks', 'setup starting; making fresh cache for this page');
 
-        // cache of blocks
-        let blocksById: Record<string, Block> = {};
+        // cache of blocks for this page
+        let blockCache: Record<string, PartialBlock> = {};
 
-        // when any change happens in Earthstar...
-        let unsub = this.storage.onWrite.subscribe(evt => {
-            log('WikiLayer.streamPageBlocks', 'onWrite: got an event...');
-            // check if it's an update related to this Page...
-            if (evt.kind !== 'DOCUMENT_WRITE') { return; }
-            let doc = evt.document;
+        // update the cache with one earthstar doc.
+        // return bool: did anything change?
+        // TODO: this assumes we only call this in causal document order,
+        // but that's not true if we're async and combining onWrite with
+        // an initial batch load.
+        let ingestDocToCache = (doc: Document) : boolean => {
+            log('WikiLayer.processDoc', 'begin...');
+            // check if route is relevant
             let route = pathToRoute(doc.path);
-            if (typeof route === 'string') { return; }
-            if (route.owner !== page.owner || route.title !== page.title) { return; }
-            if (route.kind !== 'block-doc') { return; }
+            if (typeof route === 'string') { return false; }
+            if (route.owner !== page.owner || route.title !== page.title) { return false; }
+            if (route.kind !== 'block-doc') { return false; }
+            log('WikiLayer.processDoc', '...doc is relevant...');
 
-            // it is related to this Page.
-            log('WikiLayer.streamPageBlocks', 'onWrite: ...related to this Page...');
+            let changed = false;
 
-            let wasChanged = false;
-
-            // first make sure the Block exists in our cache
-            let block: Block = blocksById[route.id];
+            // make sure block exists in the cache
+            let block: PartialBlock = blockCache[route.id];
             if (block === undefined) {
-                log('WikiLayer.streamPageBlocks', 'onWrite: ...making new block...');
+                log('WikiLayer.processDoc', '...making new block in cache...');
                 block = {
                     kind: 'block',
-                    owner: page.owner,
-                    title: page.title,
+                    owner: route.owner,
+                    title: route.title,
                     id: route.id,
-                    author: doc.author,
                     creationTimestamp: idToTimestamp(route.id),
-                    editTimestamp: doc.timestamp,
-                    text: '',
                 }
+                changed = true;
             } else {
-                log('WikiLayer.streamPageBlocks', 'onWrite: ...updating existing block...');
+                log('WikiLayer.processDoc', '...updating existing block from cache...');
             }
 
-            // update it from the Earthstar doc that just changed
+            // apply changes from this doc
             if (route.filename === 'text.md') {
-                log('WikiLayer.streamPageBlocks', 'onWrite: ...with new text content...');
-                wasChanged = block.text !== doc.content;
-                if (wasChanged) {
-                    block = {...block, text: doc.content, editTimestamp: doc.timestamp };
+                log('WikiLayer.processDoc', '...text.md...');
+                changed = changed || (block.text !== doc.content);
+                if (changed) {
+                    log('WikiLayer.processDoc', '...updating block with text...');
+                    block = {
+                        ...block,
+                        author: doc.author,
+                        editTimestamp: doc.timestamp,
+                        text: doc.content,
+                    };
                 }
             } else if (route.filename === 'sort.json') {
-                log('WikiLayer.streamPageBlocks', 'onWrite: ...with new sort...');
-                let sort: number = +doc.content;
+                log('WikiLayer.processDoc', '...sort.json...');
+                let sort = +doc.content;
                 if (!isNaN(sort)) {
-                    wasChanged = block.sort !== sort;
-                    if (wasChanged) {
-                        block = {...block, sort };
+                    changed = changed || (block.sort !== sort);
+                    if (changed) {
+                        log('WikiLayer.processDoc', '...updating block with sort...');
+                        block = {
+                            ...block,
+                            sort
+                        };
                     }
                 }
+            } else {
+                log('WikiLayer.processDoc', '...unknown filename.  bailing out.');
+                return false;
             }
+
+            if (!changed) {
+                log('WikiLayer.processDoc', '...block was not changed.  bailing out.');
+                return false;
+            }
+
+            // save back to the cache
             Object.freeze(block);
+            blockCache[block.id] = block;
 
-            if (!wasChanged) {
-                log('WikiLayer.streamPageBlocks', 'onWrite: ...nothing changed, bailing out early.');
-                return;
+            log('WikiLayer.processDoc', '...cache updated.  done.');
+            return true;
+        }
+
+        // turn the cache into a sorted, filtered list of blocks for this page,
+        // removing empty / incomplete blocks
+        let cacheToSortedList = (blockCache: Record<string, PartialBlock>): Block[] => {
+            let partialBlocks: PartialBlock[] = Object.values(blockCache)
+            let blocks: Block[] = partialBlocks
+                .filter((block: PartialBlock) => {
+                    return block.author !== undefined
+                    && block.text !== undefined
+                    && block.editTimestamp !== undefined;
+                }) as Block[];
+            sortBy(blocks, block =>
+                block.sort ? block.sort : block.creationTimestamp);
+            return blocks;
+        }
+
+        log('WikiLayer.indexPageBlocks', '...subscribing to onWrite events...');
+        let unsub = this.storage.onWrite.subscribe(evt => {
+            if (evt.kind !== 'DOCUMENT_WRITE') { return; }
+            let changed = ingestDocToCache(evt.document);
+            if (changed) {
+                // TODO: don't call this if the batch load is still running?
+                cb(cacheToSortedList(blockCache));
             }
-
-            // save it back to the cache
-            blocksById[route.id] = block;
-
-            // generate a new sorted list of blocks...
-            let blocks: Block[] = Object.values(blocksById);
-            sortBy(blocks, block => block.sort ? block.sort : block.creationTimestamp);
-
-            // skip empty blocks
-            blocks = blocks.filter(b => b.text !== '');
-
-            // and send it to the subscriber.
-            log('WikiLayer.streamPageBlocks', 'onWrite: ...sending.');
-            cb(blocks);
         });
 
-        // kick things off with the initial state and fill the cache
-        log('WikiLayer.streamPageBlocks', 'setup: filling cache and returning initial state');
-        let blocks = this.loadPageBlocks(page);
-        for (let block of blocks) {
-            blocksById[block.id] = block;
+        log('WikiLayer.indexPageBlocks', '...doing initial batch load...');
+        let prefix = pageToPathPrefix(page);
+        let initialDocs = this.storage.documents({ pathPrefix: prefix });
+        for (let doc of initialDocs) {
+            ingestDocToCache(doc);
         }
-        
-        cb(blocks);
+        log('WikiLayer.indexPageBlocks', '...calling first callback...');
+        cb(cacheToSortedList(blockCache));
 
-        log('WikiLayer.streamPageBlocks', 'setup complete');
+        log('WikiLayer.indexPageBlocks', '...done');
         return unsub;
     }
+
+
 }

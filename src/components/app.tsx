@@ -88,9 +88,6 @@ saveBlocks(WIKI, blogPage, [
 
 log('setup', '...done');
 
-plantPage.blocks = WIKI.loadPageBlocks(plantPage);
-blogPage.blocks = WIKI.loadPageBlocks(blogPage);
-
 //================================================================================
 
 export let App = () => {

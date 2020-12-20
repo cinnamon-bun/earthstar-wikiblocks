@@ -206,6 +206,7 @@ describe('WikiLayer', () => {
         expect(suzPagesListed[0]).toStrictEqual(suzPage);
     });
 
+    /*
     test('loadPageBlocks', () => {
         let suzPages = wiki.listPages(AUTHOR1);
         for (let page of suzPages) {
@@ -219,5 +220,6 @@ describe('WikiLayer', () => {
             expect(foundBlocks).toStrictEqual(expectedBlocks);
         }
     });
+    */
 
 });

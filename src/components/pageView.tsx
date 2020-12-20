@@ -25,15 +25,15 @@ export let PageView = memo(function PageView(props: PageViewProps) {
     log('PageView', '---render---', props.page.title);
 
     let page = props.page;
-    let owner = page.owner === 'common' ? 'anyone can edit' : 'by ' + page.owner.slice(0, 12) + '...';
+    let ownerText = page.owner === 'common' ? 'anyone can edit' : 'by ' + page.owner.slice(0, 12) + '...';
 
     let wiki = useContext(WikiLayerContext);
-    let [blocks, setBlocks] = useState<Block[]>([]);
+    let [blocks, setBlocks] = useState<Block[] | null>(null);  // null means loading
     useEffect(() => {
         log('PageView', 'useEffect: subscribing to streamPageBlocks');
         if (wiki === null) { return; }
         let unsub = wiki.streamPageBlocks(page, (blocks) => {
-            log('PageView', `useEffect: got array of ${blocks.length} new blocks from the stream`);
+            log('PageView', `useEffect: got array of ${blocks.length} blocks from the stream`);
             setBlocks(blocks)
         });
         return unsub;
@@ -43,7 +43,13 @@ export let PageView = memo(function PageView(props: PageViewProps) {
     // Assume blocks are already sorted
     //  and interpolate sort values between them for the AddBlock components
     let items = [];
-    if (blocks.length) {
+    if (blocks === null) {
+        items = [<div key='loading'></div>];
+    } else if (blocks.length === 0) {
+        items = [
+            <AddBlock key='only-add' sort={Date.now() * 1000}/>,
+        ];
+    } else {
         let firstBlock = blocks[0];
         let lastBlock = blocks[blocks.length-1];
         let sort0 = firstBlock.sort || firstBlock.creationTimestamp;
@@ -61,16 +67,12 @@ export let PageView = memo(function PageView(props: PageViewProps) {
         let sort1 = lastBlock.sort || lastBlock.creationTimestamp;
         let lastSort = Math.max(sort1 + 10000, Date.now() * 1000);
         items.push(<AddBlock key='last-add' sort={lastSort} />);
-    } else {
-        items = [
-            <AddBlock key='only-add' sort={Date.now() * 1000}/>,
-        ];
     }
 
     return (
         <Stack className="pageView">
             <h1 className="pageTitle">{page.title}</h1>
-            <div className="owner">{owner}</div>
+            <div className="owner">{ownerText}</div>
             <div className="pageBlocks">
                 {items}
             </div>
