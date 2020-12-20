@@ -21,14 +21,18 @@ export interface PageViewProps {
     page: Page;
 }
 export let PageView = (props: PageViewProps) => {
+    log('PageView', '---render---', props.page.title);
+
     let page = props.page;
     let owner = page.owner === 'common' ? 'anyone can edit' : 'by ' + page.owner.slice(0, 12) + '...';
 
     let wiki = useContext(WikiLayerContext);
     let [blocks, setBlocks] = useState<Block[]>([]);
     useEffect(() => {
+        log('PageView', 'useEffect: subscribing to streamPageBlocks');
         if (wiki === null) { return; }
         let unsub = wiki.streamPageBlocks(page, (blocks) => {
+            log('PageView', `useEffect: got array of ${blocks.length} new blocks from the stream`);
             setBlocks(blocks)
         });
         return unsub;
@@ -44,21 +48,21 @@ export let PageView = (props: PageViewProps) => {
         let sort0 = firstBlock.sort || firstBlock.creationTimestamp;
         let firstSort = sort0 * 0.75;
         items.push(<AddBlock key='first-add' sort={firstSort} />);
-        items.push(<BlockView key='first-block' block={firstBlock} />);
+        items.push(<BlockView key={firstBlock.id} block={firstBlock} />);
         for (let ii = 0; ii < blocks.length - 1; ii++) {
             let block0 = blocks[ii];
             let block1 = blocks[ii + 1];
             let sort0 = block0.sort || block0.creationTimestamp;
             let sort1 = block1.sort || block1.creationTimestamp;
             items.push(<AddBlock key={'add-' + ii} sort={(sort0 + sort1) / 2}/>);
-            items.push(<BlockView key={'block-' + ii} block={block1} />);
+            items.push(<BlockView key={block1.id} block={block1} />);
         }
         let sort1 = lastBlock.sort || lastBlock.creationTimestamp;
         let lastSort = Math.max(sort1 + 10000, Date.now() * 1000);
         items.push(<AddBlock key='last-add' sort={lastSort} />);
     } else {
         items = [
-            <AddBlock key='a' sort={Date.now() * 1000}/>,
+            <AddBlock key='only-add' sort={Date.now() * 1000}/>,
         ];
     }
 
@@ -77,6 +81,7 @@ export interface AddBlockProps {
     sort: number;
 }
 export let AddBlock = (props: AddBlockProps) => {
+    log('AddBlock', '---render---', props.sort);
     return (
         <div className="addBlock"
             onClick={() => log('AddBlock', 'clicked.  sort =', props.sort)}

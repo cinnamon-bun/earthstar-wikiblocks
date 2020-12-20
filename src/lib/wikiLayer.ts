@@ -381,7 +381,7 @@ export class WikiLayer {
                 // update it from the Earthstar doc that just changed
                 if (route.filename === 'text.md') {
                     log('WikiLayer.streamPageBlocks', 'onWrite: ...with new text content...');
-                    block = {...block, text: doc.content };
+                    block = {...block, text: doc.content, editTimestamp: doc.timestamp };
                 } else if (route.filename === 'sort.json') {
                     log('WikiLayer.streamPageBlocks', 'onWrite: ...with new sort...');
                     let sort: number = +doc.content;
@@ -412,6 +412,7 @@ export class WikiLayer {
         for (let block of blocks) {
             blocksById[block.id] = block;
         }
+        
         cb(blocks);
 
         log('WikiLayer.streamPageBlocks', 'setup complete');

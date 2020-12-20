@@ -107,18 +107,18 @@ export let App = () => {
         <StorageContext.Provider value={STORAGE}>
         <KeypairContext.Provider value={KEYPAIR1}>
         <WikiLayerContext.Provider value={WIKI}>
-        <ThemeContext.Provider value={initialThemeValue}>
-            <SetThemeCssVariables />
             <Box>
                 <Stack>
                     <Cluster align="right">
-                        <ThemeChooserFullScreen />
-                        <ThemeDarkButton />
+                        <ThemeContext.Provider value={initialThemeValue}>
+                            <SetThemeCssVariables />
+                            <ThemeChooserFullScreen />
+                            <ThemeDarkButton />
+                        </ThemeContext.Provider>
                     </Cluster>
                     <PageView page={plantPage} />
                 </Stack>
             </Box>
-        </ThemeContext.Provider>
         </WikiLayerContext.Provider>
         </KeypairContext.Provider>
         </StorageContext.Provider>

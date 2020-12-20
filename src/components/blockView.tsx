@@ -14,6 +14,7 @@ import { WikiLayerContext } from '../hooks/wikiLayerContext';
 // css
 import '../css/index.css';
 import '../css/pageAndBlocks.css';
+import { log } from '../lib/util';
 
 //================================================================================
 
@@ -21,6 +22,8 @@ export interface BlockViewProps {
     block: Block;
 }
 export let BlockView = (props: BlockViewProps) => {
+    log('BlockView', '---render---', props.block.id);
+
     let wiki = useContext(WikiLayerContext);
     let keypair = useContext(KeypairContext);
 
