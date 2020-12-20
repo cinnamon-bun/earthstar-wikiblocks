@@ -2,7 +2,7 @@ import React, { useContext, useState, memo } from 'react';
 import ReactMarkdown from 'react-markdown'
 
 // lib
-//import { timestampToHuman } from '../lib/util';
+import { timestampToHuman } from '../lib/util';
 import { Block } from '../lib/wikiLayer';
 
 // hooks
@@ -24,11 +24,14 @@ export interface BlockViewProps {
 export let BlockView = memo(function BlockView(props: BlockViewProps) {
     log('BlockView', '---render---', props.block.id);
 
+    let block = props.block;
     let wiki = useContext(WikiLayerContext);
     let keypair = useContext(KeypairContext);
 
-    let [editingText, setEditingText] = useState<string | null>(null);  // null means not editing
-    let block = props.block;
+    // If the block starts off with text = ' ', it was just created by AddBlock
+    //  and we should begin in editing mode.
+    let initialEditingText= (block.text === ' ') ? '' : null;
+    let [editingText, setEditingText] = useState<string | null>(initialEditingText);  // null means not editing
 
     //--------------------------------------------------
     let beginEditing = () => {
@@ -39,14 +42,17 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
     }
     let saveEditing = () => {
         if (editingText !== null && keypair !== null && wiki !== null) {
-            //// HACK until we can get notified by the wikiLayer that a change has happened
-            //block.text = editingText.trim();
             wiki.saveBlockText(keypair, {...block, text: editingText.trim()});
         }
-        setEditingText(null);
+        setEditingText(null);  // return to viewing mode
     };
     let cancelEditing = () => {
-        setEditingText(null);
+        // if this block was just created (and so has ' ' as its text), and
+        // we cancel editing it, let's just delete it again
+        if (block.text === ' ' && keypair !== null && wiki !== null) {
+            wiki.saveBlockText(keypair, {...block, text: ''});
+        }
+        setEditingText(null);  // return to viewing mode
     };
 
     //--------------------------------------------------
@@ -77,7 +83,6 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
                     </ReactMarkdown>
                     : <textarea value={editingText} onChange={handleEditingChange} />
                 }
-                {/*
                 <div className="details">
                     {block.owner !== 'common' ? null : (
                         <div>by: {block.author.slice(0, 12) + '...'}</div>
@@ -86,7 +91,6 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
                     <div>created: {timestampToHuman(block.creationTimestamp)}</div>
                     <div>edited: {timestampToHuman(block.editTimestamp)}</div>
                 </div>
-                */}
             </div>
         </div>
     );

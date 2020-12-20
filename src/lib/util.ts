@@ -45,6 +45,9 @@ export let timestampToHuman = (timestamp: number): string => {
 //================================================================================
 // RANDOM NUMBERS
 
+export let interpolate = (lo: number, hi: number, amt: number): number =>
+    lo + (hi - lo) * amt
+
 // random integer inclusive of endpoints
 export let randInt = (lo: number, hi: number): number =>
     Math.floor(Math.random() * (hi - lo + 1)) + lo;

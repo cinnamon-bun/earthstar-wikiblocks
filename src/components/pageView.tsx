@@ -1,7 +1,7 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 
 // lib
-import { log } from '../lib/util';
+import { interpolate, log, randFloat } from '../lib/util';
 import { Page, Block } from '../lib/wikiLayer';
 
 // hooks
@@ -61,7 +61,8 @@ export let PageView = memo(function PageView(props: PageViewProps) {
             let block1 = blocks[ii + 1];
             let sort0 = block0.sort || block0.creationTimestamp;
             let sort1 = block1.sort || block1.creationTimestamp;
-            items.push(<AddBlock key={'add-' + ii} page={page} sort={(sort0 + sort1) / 2}/>);
+            let sortMiddle = interpolate(sort0, sort1, randFloat(0.4, 0.6));
+            items.push(<AddBlock key={'add-' + ii} page={page} sort={sortMiddle}/>);
             items.push(<BlockView key={block1.id} block={block1} />);
         }
         let sort1 = lastBlock.sort || lastBlock.creationTimestamp;

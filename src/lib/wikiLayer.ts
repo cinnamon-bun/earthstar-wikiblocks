@@ -404,11 +404,13 @@ export class WikiLayer {
         // turn the cache into a sorted, filtered list of blocks for this page,
         // removing empty / incomplete blocks
         let cacheToSortedList = (blockCache: Record<string, PartialBlock>): Block[] => {
+            log('WikiLayer.cacheToSortedList', '...sorting and filtering blocks...');
             let partialBlocks: PartialBlock[] = Object.values(blockCache)
             let blocks: Block[] = partialBlocks
                 .filter((block: PartialBlock) => {
                     return block.author !== undefined
                     && block.text !== undefined
+                    && block.text !== ''
                     && block.editTimestamp !== undefined;
                 }) as Block[];
             sortBy(blocks, block =>

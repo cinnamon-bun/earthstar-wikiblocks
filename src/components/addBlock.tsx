@@ -31,11 +31,16 @@ export let AddBlock = memo(function AddBlock(props: AddBlockProps) {
     let addBlock = () => {
         log('AddBlock', 'clicked...  sort =', props.sort);
         if (wiki === null || keypair === null) { return; }
-        let block = wiki.newBlockInPage(props.page, keypair.address, '...');
+        // HACK: create new block with some initial text so it won't count as deleted,
+        //  and choose something unusual so the BlockView will launch right into edit mode.
+        // We have no way of communicating directly with the BlockView to ask it to start
+        //  in edit mode -- changes have to pass through Earthstar documents.
+        // So let's start it off with text = ' '
+        let block = wiki.newBlockInPage(props.page, keypair.address, ' ');
         block.sort = props.sort;
         log('AddBlock', '...saving 2 docs (text and sort)...');
-        wiki.saveBlockText(keypair, block);
         wiki.saveBlockSort(keypair, block);
+        wiki.saveBlockText(keypair, block);
         log('AddBlock', '...done.');
     }
 
