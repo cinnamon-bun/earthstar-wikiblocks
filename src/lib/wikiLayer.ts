@@ -325,13 +325,13 @@ export class WikiLayer {
         // cache of blocks for this page
         let blockCache: Record<string, PartialBlock> = {};
 
-        // update the cache with one earthstar doc.
-        // return bool: did anything change?
-        // TODO: this assumes we only call this in causal document order,
-        // but that's not true if we're async and combining onWrite with
-        // an initial batch load.
+        // Update the cache with one earthstar doc.
+        // Return bool: did anything change?
+        // Assumes docs are only provided in causal order (doesn't check if they're
+        //  the most recent version before applying them to the cache).
         let ingestDocToCache = (doc: Document) : boolean => {
             log('WikiLayer.processDoc', 'begin...');
+
             // check if route is relevant
             let route = pathToRoute(doc.path);
             if (typeof route === 'string') { return false; }

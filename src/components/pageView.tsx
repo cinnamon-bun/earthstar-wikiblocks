@@ -28,7 +28,10 @@ export let PageView = memo(function PageView(props: PageViewProps) {
     let ownerText = page.owner === 'common' ? 'anyone can edit' : 'by ' + page.owner.slice(0, 12) + '...';
 
     let wiki = useContext(WikiLayerContext);
+
+    // blocks of this page, to be set by the stream we subscribe to in useEffect.
     let [blocks, setBlocks] = useState<Block[] | null>(null);  // null means loading
+
     useEffect(() => {
         log('PageView', 'useEffect: subscribing to streamPageBlocks');
         if (wiki === null) { return; }
