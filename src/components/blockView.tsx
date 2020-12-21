@@ -46,6 +46,7 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
             if (editingText.trim() !== block.text) {
                 setIsPending(true);
                 let success = await wiki.saveBlockText(keypair, {...block, text: editingText.trim()});
+                // TODO: only set if still mounted
                 setIsPending(false);
                 log('saveEditing success:', success);
             }
@@ -58,7 +59,7 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
         if (block.text === ' ' && keypair !== null && wiki !== null) {
             setIsPending(true);
             let success = await wiki.saveBlockText(keypair, {...block, text: ''});
-            setIsPending(false);
+            // TODO: only set if still mounted
             log('cancelEditing deletion success:', success);
         }
         setEditingText(null);  // return to viewing mode

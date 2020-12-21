@@ -46,6 +46,7 @@ export let AddBlock = memo(function AddBlock(props: AddBlockProps) {
             wiki.saveBlockSort(keypair, block),
             wiki.saveBlockText(keypair, block),
         ]);
+        // TODO: only set if still mounted
         setIsPending(false);
         log('AddBlock', '...done.  successes =', successes);
     }
