@@ -31,7 +31,8 @@ h1, h2, h3, h4, h5 {
     margin: 0px;
 }
 .markdown > * {
-    margin: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 .markdown > * + * {
     margin-top: 1rem;

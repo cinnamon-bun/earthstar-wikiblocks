@@ -148,6 +148,13 @@
             border: 2px solid var(--base02);
             background-color: var(--base02);
         }
+        .blockRow .blockContent .markdown blockquote {
+            color: var(--base04);
+            margin-left: var(--s-1);
+            padding-left: var(--s0);
+            border-left: 0.8ch solid var(--base02);
+            border-radius: var(--round-card);
+        }
         /* ---- /markdown ---- */
 
         .blockRow .blockContent textarea {
