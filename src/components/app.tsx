@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
     AuthorKeypair,
+    sleep,
     StorageMemory,
     StorageToAsync,
     ValidatorEs4,
@@ -52,7 +53,7 @@ const KEYPAIR1: AuthorKeypair = {
 const AUTHOR1 = KEYPAIR1.address;
 
 const WORKSPACE = '+test.abc';
-const STORAGE = new StorageToAsync(new StorageMemory([ValidatorEs4], WORKSPACE), 0);
+const STORAGE = new StorageToAsync(new StorageMemory([ValidatorEs4], WORKSPACE), 1);
 
 const WIKI = new WikiLayer(STORAGE);
 
@@ -62,7 +63,6 @@ let saveBlocks = async (wiki: WikiLayer, page: Page, texts: string[]): Promise<v
         await wiki.saveBlockText(KEYPAIR1, block);
     }
 }
-
 
 let plantPage = WIKI.getPage('common', 'Native Plants');
 let blogPage = WIKI.getPage(AUTHOR1, 'My Blog');
@@ -91,9 +91,23 @@ let prepare = async () => {
         'Block 2 about my blog.',
     ]);
     log('prepare data', '...done saving blocks');
-    STORAGE._fakeSleepTime = 1000;
+    STORAGE._fakeSleepTime = 500;
 }
 prepare();
+
+/*
+let setForever = async (wiki: WikiLayer, page: Page) => {
+    let block = wiki.newBlockInPage(page, AUTHOR1, 'hello');
+    let ii = 0;
+    while (true) {
+        ii += 1;
+        block = {...block, text: 'iteration ' + ii};
+        await sleep(2000);
+        await wiki.saveBlockText(KEYPAIR1, block);
+    }
+};
+setForever(WIKI, plantPage);
+*/
 
 log('setup', '...done');
 
