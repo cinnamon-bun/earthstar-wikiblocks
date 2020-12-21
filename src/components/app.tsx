@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
     AuthorKeypair,
     StorageMemory,
+    StorageToAsync,
     ValidatorEs4,
 } from 'earthstar';
 
@@ -51,40 +52,48 @@ const KEYPAIR1: AuthorKeypair = {
 const AUTHOR1 = KEYPAIR1.address;
 
 const WORKSPACE = '+test.abc';
-const STORAGE = new StorageMemory([ValidatorEs4], WORKSPACE);
+const STORAGE = new StorageToAsync(new StorageMemory([ValidatorEs4], WORKSPACE), 0);
 
 const WIKI = new WikiLayer(STORAGE);
 
-let saveBlocks = (wiki: WikiLayer, page: Page, texts: string[]) => {
+let saveBlocks = async (wiki: WikiLayer, page: Page, texts: string[]): Promise<void> => {
     for (let blockText of texts) {
         let block = wiki.newBlockInPage(page, AUTHOR1, blockText);
-        wiki.saveBlockText(KEYPAIR1, block);
+        await wiki.saveBlockText(KEYPAIR1, block);
     }
 }
 
+
 let plantPage = WIKI.getPage('common', 'Native Plants');
-saveBlocks(WIKI, plantPage, [
-    'Block 1 about [plants]().',
-`
+let blogPage = WIKI.getPage(AUTHOR1, 'My Blog');
+let prepare = async () => {
+    log('prepare data', 'saving plant blocks...');
+    await saveBlocks(WIKI, plantPage, [
+        'Block 1 about [plants]().',
+        `
 ## Block 2 about plants.
 
 * they are cool
 * leaves
 * roots??
-`,
-    'Block 3 about plants. Block 3 about plants. Block 3 about plants. Block 3 about plants. '+
-    'Block 3 about plants. Block 3 about plants.\n\nBlock 3 about plants. Block 3 about plants. '+
-    '\n## h2\n'+
-    '\n## h2\n'+
-    'Block 3 about plants. Block 3 about plants.  Block 3 is all about... plants.',
-    'Block4 with an image linked using markdown.'+
-    '\n\n![img-alt-text](https://images.unsplash.com/photo-1550065180-82c533e847b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1354&q=80)',
-]);
-let blogPage = WIKI.getPage(AUTHOR1, 'My Blog');
-saveBlocks(WIKI, blogPage, [
-    'Block 1 about my blog.',
-    'Block 2 about my blog.',
-]);
+        `,
+        'Block 3 about plants. Block 3 about plants. Block 3 about plants. Block 3 about plants. '+
+        'Block 3 about plants. Block 3 about plants.\n\nBlock 3 about plants. Block 3 about plants. '+
+        '\n## h2\n'+
+        '\n## h2\n'+
+        'Block 3 about plants. Block 3 about plants.  Block 3 is all about... plants.',
+        'Block4 with an image linked using markdown.'+
+        '\n\n![img-alt-text](https://images.unsplash.com/photo-1550065180-82c533e847b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1354&q=80)',
+    ]);
+    log('prepare data', 'saving blog blocks...');
+    await saveBlocks(WIKI, blogPage, [
+        'Block 1 about my blog.',
+        'Block 2 about my blog.',
+    ]);
+    log('prepare data', '...done saving blocks');
+    STORAGE._fakeSleepTime = 1000;
+}
+prepare();
 
 log('setup', '...done');
 

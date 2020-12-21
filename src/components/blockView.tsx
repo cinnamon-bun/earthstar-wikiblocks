@@ -32,6 +32,7 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
     //  and we should begin in editing mode.
     let initialEditingText= (block.text === ' ') ? '' : null;
     let [editingText, setEditingText] = useState<string | null>(initialEditingText);  // null means not editing
+    let [isPending, setIsPending] = useState(false);
 
     //--------------------------------------------------
     let beginEditing = () => {
@@ -40,17 +41,25 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
     let handleEditingChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setEditingText(e.target.value);
     }
-    let saveEditing = () => {
+    let saveEditing = async () => {
         if (editingText !== null && keypair !== null && wiki !== null) {
-            wiki.saveBlockText(keypair, {...block, text: editingText.trim()});
+            if (editingText.trim() !== block.text) {
+                setIsPending(true);
+                let success = await wiki.saveBlockText(keypair, {...block, text: editingText.trim()});
+                setIsPending(false);
+                log('saveEditing success:', success);
+            }
         }
         setEditingText(null);  // return to viewing mode
     };
-    let cancelEditing = () => {
+    let cancelEditing = async () => {
         // if this block was just created (and so has ' ' as its text), and
         // we cancel editing it, let's just delete it again
         if (block.text === ' ' && keypair !== null && wiki !== null) {
-            wiki.saveBlockText(keypair, {...block, text: ''});
+            setIsPending(true);
+            let success = await wiki.saveBlockText(keypair, {...block, text: ''});
+            setIsPending(false);
+            log('cancelEditing deletion success:', success);
         }
         setEditingText(null);  // return to viewing mode
     };
@@ -60,19 +69,19 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
     if (keypair !== null) {
         if (editingText === null) {
             actionButtons = [
-                <button key='edit' type="button" className='edit' onClick={beginEditing}>edit</button>,
+                <button key='edit'   type="button" className='edit'   disabled={isPending} onClick={beginEditing}>edit</button>,
             ];
         } else {
             actionButtons = [
-                <button key='save'   type="button" className='save' onClick={saveEditing}>save</button>,
-                <button key='cancel' type="button" className='cancel' onClick={cancelEditing}>cancel</button>,
+                <button key='save'   type="button" className='save'   disabled={isPending} onClick={saveEditing}>save</button>,
+                <button key='cancel' type="button" className='cancel' disabled={isPending} onClick={cancelEditing}>cancel</button>,
             ]
         }
     }
 
     //--------------------------------------------------
     return (
-        <div className="blockRow">
+        <div className={"blockRow" + (isPending ? ' pending' : '')}>
             <div className="buttonColumn">
                 {actionButtons}
             </div>

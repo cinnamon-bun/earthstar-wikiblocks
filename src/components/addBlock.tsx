@@ -1,4 +1,4 @@
-import { memo, useContext } from 'react';
+import { memo, useContext, useState } from 'react';
 
 // lib
 import { log } from '../lib/util';
@@ -27,9 +27,11 @@ export let AddBlock = memo(function AddBlock(props: AddBlockProps) {
 
     let wiki = useContext(WikiLayerContext);
     let keypair = useContext(KeypairContext);
+    let [isPending, setIsPending] = useState(false);
 
-    let addBlock = () => {
+    let addBlock = async () => {
         log('AddBlock', 'clicked...  sort =', props.sort);
+        if (isPending) { return; }
         if (wiki === null || keypair === null) { return; }
         // HACK: create new block with some initial text so it won't count as deleted,
         //  and choose something unusual so the BlockView will launch right into edit mode.
@@ -39,17 +41,21 @@ export let AddBlock = memo(function AddBlock(props: AddBlockProps) {
         let block = wiki.newBlockInPage(props.page, keypair.address, ' ');
         block.sort = props.sort;
         log('AddBlock', '...saving 2 docs (text and sort)...');
-        wiki.saveBlockSort(keypair, block);
-        wiki.saveBlockText(keypair, block);
-        log('AddBlock', '...done.');
+        setIsPending(true);
+        let successes = await Promise.allSettled([
+            wiki.saveBlockSort(keypair, block),
+            wiki.saveBlockText(keypair, block),
+        ]);
+        setIsPending(false);
+        log('AddBlock', '...done.  successes =', successes);
     }
 
     return (
-        <div className="addBlock"
+        <div className={"addBlock " + (isPending ? 'pending' : '')}
             onClick={addBlock}
         >
             <div className="buttonColumn">
-                <button type="button">add</button>
+                <button type="button" disabled={isPending}>{isPending ? 'adding...' : 'add'}</button>
             </div>
             <hr />
         </div>

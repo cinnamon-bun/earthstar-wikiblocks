@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 // lib
+import { log } from './lib/util';
 
 // hooks
 
@@ -11,9 +12,12 @@ import { App } from './components/app';
 // css
 import './css/index.css';
 
-ReactDOM.render(
-    <React.StrictMode>
-        <App />
-    </React.StrictMode>,
-    document.getElementById('root')
-);
+setTimeout(() => {
+    log('INDEX', '---first render---');
+    ReactDOM.render(
+        <React.StrictMode>
+            <App />
+        </React.StrictMode>,
+        document.getElementById('root')
+    );
+}, 1000);

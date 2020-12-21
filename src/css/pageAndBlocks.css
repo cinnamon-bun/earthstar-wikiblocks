@@ -43,6 +43,9 @@
             border: none;
             cursor: pointer;
         }
+        .addBlock.pending .buttonColumn button {
+            background-color: var(--base03);
+        }
     .addBlock hr {
         display: block;
         flex-grow: 1;
@@ -54,10 +57,17 @@
         background: linear-gradient(90deg, var(--base0B) 0%, transparent 100%);
         margin: 0px;
     }
+    .addBlock.pending hr {
+        background: linear-gradient(90deg, var(--base03) 0%, transparent 100%);
+    }
 
 .blockRow {
     display: flex;
     border: var(--test-border-width) solid #888;
+}
+.blockRow.pending button {
+    /* turn buttons gray when pending */
+    background-color: var(--base03) !important;
 }
     .blockRow .buttonColumn {
         border: var(--test-border-width) dashed #888;
@@ -159,6 +169,11 @@
 
             resize: vertical;
             overflow-x: hidden;
+        }
+        .blockRow.pending .blockContent textarea {
+            color: var(--base06);
+            border: 2px solid var(--base04);
+            background-color: var(--base01);
         }
 
         .blockRow .blockContent .details {

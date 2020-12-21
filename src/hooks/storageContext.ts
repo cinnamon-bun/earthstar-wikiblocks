@@ -1,4 +1,4 @@
 import { createContext } from 'react'
-import { IStorage } from 'earthstar';
+import { IStorageAsync } from 'earthstar';
 
-export let StorageContext = createContext<IStorage | null>(null);
+export let StorageContext = createContext<IStorageAsync | null>(null);

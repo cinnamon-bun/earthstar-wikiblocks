@@ -158,6 +158,7 @@ describe('path <--> doc route', () => {
 
 //================================================================================
 
+/*
 describe('WikiLayer', () => {
     let workspace = '+test.abc';
     let storage = new StorageMemory([ValidatorEs4], workspace);
@@ -225,3 +226,4 @@ describe('WikiLayer', () => {
     });
 
 });
+*/

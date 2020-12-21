@@ -47,7 +47,7 @@ export let PageView = memo(function PageView(props: PageViewProps) {
     //  and interpolate sort values between them for the AddBlock components
     let items = [];
     if (blocks === null) {
-        items = [<div key='loading'></div>];
+        items = [<div key='loading'><i>loading...</i></div>];
     } else if (blocks.length === 0) {
         items = [
             <AddBlock key='only-add' page={page} sort={Date.now() * 1000}/>,

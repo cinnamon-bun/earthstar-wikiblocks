@@ -2,7 +2,7 @@ import {
     AuthorAddress,
     AuthorKeypair,
     Document,
-    IStorage,
+    IStorageAsync,
     ValidatorEs4,
     WorkspaceAddress,
     WriteResult,
@@ -201,13 +201,13 @@ export let pageToPathPrefix = (page: Page): string => {
 //================================================================================
 
 export class WikiLayer {
-    storage: IStorage;
+    storage: IStorageAsync;
     workspace: WorkspaceAddress;
-    constructor(storage: IStorage) {
+    constructor(storage: IStorageAsync) {
         this.storage = storage;
         this.workspace = this.storage.workspace;
     }
-    listPages(owner?: 'common' | AuthorAddress): Page[] {
+    async listPages(owner?: 'common' | AuthorAddress): Promise<Page[]> {
         // query Earthstar to list the existing Pages.
         // Pages don't actually have documents, only Blocks do, so
         // this actually queries for Blocks and then returns
@@ -220,7 +220,7 @@ export class WikiLayer {
         } else if (owner?.startsWith('@')) {
             pathPrefix += `~${owner}/`;  // put tilde on author address
         }
-        let paths = this.storage.paths({ pathPrefix: pathPrefix });
+        let paths = await this.storage.paths({ pathPrefix: pathPrefix });
 
         // parse paths into doc routes
         let routes = paths.map(pathToRoute).filter(r => typeof r !== 'string') as DocRoute[];
@@ -274,7 +274,7 @@ export class WikiLayer {
             text: text,
         }
     }
-    saveBlockText(keypair: AuthorKeypair, block: Block): boolean {
+    async saveBlockText(keypair: AuthorKeypair, block: Block): Promise<boolean> {
         // save the given block's text to Earthstar.
         if (keypair.address !== block.author) {
             throw new Error("can't save block using a different author's keypair");
@@ -286,14 +286,14 @@ export class WikiLayer {
             id: block.id,
             filename: 'text.md',
         }
-        let result = this.storage.set(keypair, {
+        let result = await this.storage.set(keypair, {
             format: 'es.4',
             path: routeToPath(route),
             content: block.text,
         });
         return result === WriteResult.Accepted;
     }
-    saveBlockSort(keypair: AuthorKeypair, block: Block): boolean {
+    async saveBlockSort(keypair: AuthorKeypair, block: Block): Promise<boolean> {
         // save the given block's sort value to Earthstar.
         if (keypair.address !== block.author) {
             throw new Error("can't save block using a different author's keypair");
@@ -305,7 +305,7 @@ export class WikiLayer {
             id: block.id,
             filename: 'sort.json',
         }
-        let result = this.storage.set(keypair, {
+        let result = await this.storage.set(keypair, {
             format: 'es.4',
             path: routeToPath(route),
             content: '' + (block.sort || idToTimestamp(block.id)),
@@ -329,22 +329,24 @@ export class WikiLayer {
         // Return bool: did anything change?
         // Assumes docs are only provided in causal order (doesn't check if they're
         //  the most recent version before applying them to the cache).
+        // This might not be true now that we're async, if an event arrives while
+        // we're processing the batch load... ?
         let ingestDocToCache = (doc: Document) : boolean => {
-            log('WikiLayer.processDoc', 'begin...');
+            log(' - - WikiLayer.processDoc', 'begin...');
 
             // check if route is relevant
             let route = pathToRoute(doc.path);
             if (typeof route === 'string') { return false; }
             if (route.owner !== page.owner || route.title !== page.title) { return false; }
             if (route.kind !== 'block-doc') { return false; }
-            log('WikiLayer.processDoc', '...doc is relevant...');
+            log(' - - WikiLayer.processDoc', '...doc is relevant...');
 
             let changed = false;
 
             // make sure block exists in the cache
             let block: PartialBlock = blockCache[route.id];
             if (block === undefined) {
-                log('WikiLayer.processDoc', '...making new block in cache...');
+                log(' - - WikiLayer.processDoc', '...making new block in cache...');
                 block = {
                     kind: 'block',
                     owner: route.owner,
@@ -354,15 +356,15 @@ export class WikiLayer {
                 }
                 changed = true;
             } else {
-                log('WikiLayer.processDoc', '...updating existing block from cache...');
+                log(' - - WikiLayer.processDoc', '...updating existing block from cache...');
             }
 
             // apply changes from this doc
             if (route.filename === 'text.md') {
-                log('WikiLayer.processDoc', '...text.md...');
+                log(' - - WikiLayer.processDoc', '...text.md...');
                 changed = changed || (block.text !== doc.content);
                 if (changed) {
-                    log('WikiLayer.processDoc', '...updating block with text...');
+                    log(' - - WikiLayer.processDoc', '...updating block with text...');
                     block = {
                         ...block,
                         author: doc.author,
@@ -371,12 +373,12 @@ export class WikiLayer {
                     };
                 }
             } else if (route.filename === 'sort.json') {
-                log('WikiLayer.processDoc', '...sort.json...');
+                log(' - - WikiLayer.processDoc', '...sort.json...');
                 let sort = +doc.content;
                 if (!isNaN(sort)) {
                     changed = changed || (block.sort !== sort);
                     if (changed) {
-                        log('WikiLayer.processDoc', '...updating block with sort...');
+                        log(' - - WikiLayer.processDoc', '...updating block with sort...');
                         block = {
                             ...block,
                             sort
@@ -384,12 +386,12 @@ export class WikiLayer {
                     }
                 }
             } else {
-                log('WikiLayer.processDoc', '...unknown filename.  bailing out.');
+                log(' - - WikiLayer.processDoc', '...unknown filename.  bailing out.');
                 return false;
             }
 
             if (!changed) {
-                log('WikiLayer.processDoc', '...block was not changed.  bailing out.');
+                log(' - - WikiLayer.processDoc', '...block was not changed.  bailing out.');
                 return false;
             }
 
@@ -397,14 +399,14 @@ export class WikiLayer {
             Object.freeze(block);
             blockCache[block.id] = block;
 
-            log('WikiLayer.processDoc', '...cache updated.  done.');
+            log(' - - WikiLayer.processDoc', '...cache updated.  done.');
             return true;
         }
 
         // turn the cache into a sorted, filtered list of blocks for this page,
         // removing empty / incomplete blocks
         let cacheToSortedList = (blockCache: Record<string, PartialBlock>): Block[] => {
-            log('WikiLayer.cacheToSortedList', '...sorting and filtering blocks...');
+            log(' - -WikiLayer.cacheToSortedList', '...sorting and filtering blocks...');
             let partialBlocks: PartialBlock[] = Object.values(blockCache)
             let blocks: Block[] = partialBlocks
                 .filter((block: PartialBlock) => {
@@ -418,26 +420,35 @@ export class WikiLayer {
             return blocks;
         }
 
-        log('WikiLayer.indexPageBlocks', '...subscribing to onWrite events...');
+        log('WikiLayer.streamPageBlocks', '...subscribing to onWrite events...');
         let unsub = this.storage.onWrite.subscribe(evt => {
             if (evt.kind !== 'DOCUMENT_WRITE') { return; }
+            log(' - WikiLayer.subscription', 'onWrite event.  trying to ingest document to cache...');
             let changed = ingestDocToCache(evt.document);
             if (changed) {
                 // TODO: don't call this if the batch load is still running?
+                log(' - WikiLayer.subscription', 'onWrite event.  ...cache changed; re-sorting and sending to callback.');
                 cb(cacheToSortedList(blockCache));
+            } else {
+                log(' - WikiLayer.subscription', 'onWrite event.  ...cache did not change.  bailing.');
             }
         });
 
-        log('WikiLayer.indexPageBlocks', '...doing initial batch load...');
-        let prefix = pageToPathPrefix(page);
-        let initialDocs = this.storage.documents({ pathPrefix: prefix });
-        for (let doc of initialDocs) {
-            ingestDocToCache(doc);
+        let initialBatchLoad = async () => {
+            log(' - WikiLayer.initialBatchLoad', 'querying...');
+            let prefix = pageToPathPrefix(page);
+            let initialDocs = await this.storage.documents({ pathPrefix: prefix });
+            log(' - WikiLayer.initialBatchLoad', `...ingesting each of ${initialDocs.length} docs...`);
+            for (let doc of initialDocs) {
+                ingestDocToCache(doc);
+            }
+            log(' - WikiLayer.initialBatchLoad', '...done ingesting batch.  calling first callback...');
+            cb(cacheToSortedList(blockCache));
+            log(' - WikiLayer.initialBatchLoad', '...done.');
         }
-        log('WikiLayer.indexPageBlocks', '...calling first callback...');
-        cb(cacheToSortedList(blockCache));
+        initialBatchLoad();
 
-        log('WikiLayer.indexPageBlocks', '...done');
+        log('WikiLayer.streamPageBlocks', '...done');
         return unsub;
     }
 
