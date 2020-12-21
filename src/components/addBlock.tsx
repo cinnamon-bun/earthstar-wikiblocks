@@ -5,6 +5,7 @@ import { log } from '../lib/util';
 import { Page } from '../lib/wikiLayer';
 
 // hooks
+import { useIsMounted } from '../hooks/useIsMounted';
 import { WikiLayerContext } from '../hooks/wikiLayerContext';
 import { KeypairContext } from '../hooks/keypairContext';
 
@@ -28,6 +29,7 @@ export let AddBlock = memo(function AddBlock(props: AddBlockProps) {
     let wiki = useContext(WikiLayerContext);
     let keypair = useContext(KeypairContext);
     let [isPending, setIsPending] = useState(false);
+    let isMounted = useIsMounted();
 
     let addBlock = async () => {
         log('AddBlock', 'clicked...  sort =', props.sort);
@@ -46,8 +48,7 @@ export let AddBlock = memo(function AddBlock(props: AddBlockProps) {
             wiki.saveBlockSort(keypair, block),
             wiki.saveBlockText(keypair, block),
         ]);
-        // TODO: only set if still mounted
-        setIsPending(false);
+        if (isMounted.current) { setIsPending(false); }
         log('AddBlock', '...done.  successes =', successes);
     }
 

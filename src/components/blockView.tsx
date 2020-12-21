@@ -6,6 +6,7 @@ import { timestampToHuman } from '../lib/util';
 import { Block } from '../lib/wikiLayer';
 
 // hooks
+import { useIsMounted } from '../hooks/useIsMounted';
 import { KeypairContext } from '../hooks/keypairContext';
 import { WikiLayerContext } from '../hooks/wikiLayerContext';
 
@@ -27,6 +28,7 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
     let block = props.block;
     let wiki = useContext(WikiLayerContext);
     let keypair = useContext(KeypairContext);
+    let isMounted = useIsMounted();
 
     // If the block starts off with text = ' ', it was just created by AddBlock
     //  and we should begin in editing mode.
@@ -46,8 +48,7 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
             if (editingText.trim() !== block.text) {
                 setIsPending(true);
                 let success = await wiki.saveBlockText(keypair, {...block, text: editingText.trim()});
-                // TODO: only set if still mounted
-                setIsPending(false);
+                if (isMounted.current) { setIsPending(false); }
                 log('saveEditing success:', success);
             }
         }
@@ -59,7 +60,7 @@ export let BlockView = memo(function BlockView(props: BlockViewProps) {
         if (block.text === ' ' && keypair !== null && wiki !== null) {
             setIsPending(true);
             let success = await wiki.saveBlockText(keypair, {...block, text: ''});
-            // TODO: only set if still mounted
+            if (isMounted.current) { setIsPending(false); }
             log('cancelEditing deletion success:', success);
         }
         setEditingText(null);  // return to viewing mode
