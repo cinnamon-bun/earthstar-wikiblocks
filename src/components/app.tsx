@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
     AuthorKeypair,
-    sleep,
-    StorageMemory,
+    //sleep,
+    StorageLocalStorage,
+    //StorageMemory,
     StorageToAsync,
     ValidatorEs4,
 } from 'earthstar';
@@ -10,6 +11,7 @@ import {
 // lib
 import { log } from '../lib/util';
 import {
+    APPNAME,
     Page,
     WikiLayer,
 } from '../lib/wikiLayer';
@@ -53,7 +55,8 @@ const KEYPAIR1: AuthorKeypair = {
 const AUTHOR1 = KEYPAIR1.address;
 
 const WORKSPACE = '+test.abc';
-const STORAGE = new StorageToAsync(new StorageMemory([ValidatorEs4], WORKSPACE), 1);
+//const STORAGE = new StorageToAsync(new StorageMemory([ValidatorEs4], WORKSPACE), 1);
+const STORAGE = new StorageToAsync(new StorageLocalStorage([ValidatorEs4], WORKSPACE), 500);
 
 const WIKI = new WikiLayer(STORAGE);
 
@@ -67,6 +70,9 @@ let saveBlocks = async (wiki: WikiLayer, page: Page, texts: string[]): Promise<v
 let plantPage = WIKI.getPage('common', 'Native Plants');
 let blogPage = WIKI.getPage(AUTHOR1, 'My Blog');
 let prepare = async () => {
+    let numExistingDocs = (await STORAGE.paths({ pathPrefix: `/${APPNAME}/` })).length;
+    console.log('prepare data', `found ${numExistingDocs} existing docs`);
+    if (numExistingDocs > 0) { return; }
     log('prepare data', 'saving plant blocks...');
     await saveBlocks(WIKI, plantPage, [
         'Block 1 about [plants]().',
@@ -91,7 +97,7 @@ let prepare = async () => {
         'Block 2 about my blog.',
     ]);
     log('prepare data', '...done saving blocks');
-    STORAGE._fakeSleepTime = 500;
+    //STORAGE._fakeSleepTime = 500;
 }
 prepare();
 

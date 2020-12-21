@@ -12,12 +12,10 @@ import { App } from './components/app';
 // css
 import './css/index.css';
 
-setTimeout(() => {
-    log('INDEX', '---first render---');
-    ReactDOM.render(
-        <React.StrictMode>
-            <App />
-        </React.StrictMode>,
-        document.getElementById('root')
-    );
-}, 600);
+log('INDEX', '---first render---');
+ReactDOM.render(
+    <React.StrictMode>
+        <App />
+    </React.StrictMode>,
+    document.getElementById('root')
+);
