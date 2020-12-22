@@ -22,7 +22,8 @@ export interface PageViewProps {
     page: Page;
 }
 export let PageView = memo(function PageView(props: PageViewProps) {
-    log('PageView', '---render---', props.page.title);
+    let logName = `PageView ${props.page.title}`;
+    log(logName, '---render---', props.page.title);
 
     let page = props.page;
     let ownerText = page.owner === 'common' ? 'anyone can edit' : 'by ' + page.owner.slice(0, 12) + '...';
@@ -33,14 +34,18 @@ export let PageView = memo(function PageView(props: PageViewProps) {
     let [blocks, setBlocks] = useState<Block[] | null>(null);  // null means loading
 
     useEffect(() => {
-        log('PageView', 'useEffect: subscribing to streamPageBlocks');
+        log(logName, 'useEffect: --> subscribing to streamPageBlocks');
         if (wiki === null) { return; }
         let unsub = wiki.streamPageBlocks(page, (blocks) => {
-            log('PageView', `useEffect: got array of ${blocks.length} blocks from the stream`);
+            log(logName, `useEffect: !! got array of ${blocks.length} blocks from the stream`);
             setBlocks(blocks)
         });
-        return unsub;
-    }, [wiki, page]);
+        return () => {
+            log(logName, 'useEffect: <-- unsubscribing from streamPageBlocks');
+            unsub();
+            setBlocks(null);
+        };
+    }, [wiki, page, logName]);
 
     // Make alternating list of AddBlock and BlockView components.
     // Assume blocks are already sorted
