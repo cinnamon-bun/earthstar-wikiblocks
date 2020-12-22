@@ -36,7 +36,7 @@ import {
 } from './layouts';
 import {
     SetThemeCssVariables,
-    ThemeChooserFullScreen,
+    ThemeChooser,
     ThemeDarkButton,
 } from './themeComponents';
 import { PageView } from './pageView';
@@ -125,17 +125,18 @@ log('setup', '...done');
 export let AllPages = () =>
     <Stack>
         <h1>All pages</h1>
-        <i>Coming soon</i>
+        <div>Coming soon</div>
     </Stack>;
 
 export let RecentEdits = () =>
     <Stack>
-        <h1>Recent Edits</h1>
-        <i>Coming soon</i>
+        <h1>Recent edits</h1>
+        <div>Coming soon</div>
     </Stack>;
 
 let routes = {
     '/': () => <AllPages />,
+    '/themes': () => <ThemeChooser />,
     '/pages/all': () => <AllPages />,
     '/pages/recent': () => <RecentEdits />,
     '/page/:owner/:title': (props: { owner: string, title: string }) => {
@@ -153,20 +154,6 @@ export let RouteComponent = () => {
     return routeComponent;
 };
 
-/*
-export let App = () => {
-    return <div>
-        <div>navbar</div>
-        <Link href="/">home</Link> |{" "}
-        <Link href="/settings">settings</Link> |{" "}
-        <Link href="/page/:foo">page :foo</Link> |{" "}
-        <Link href="/block/block:1234">block block:1234</Link>
-        <hr/>
-        <RouteComponent />
-    </div>
-}
-*/
-
 //================================================================================
 
 export let Sidebar = () =>
@@ -183,8 +170,8 @@ export let Sidebar = () =>
         <div className='sidebarNav'>
             <Box>
                 <Stack>
-                    <div><Link href='/pages/recent'>Recent edits</Link></div>
                     <div><Link href='/pages/all'>All pages</Link></div>
+                    <div><Link href='/pages/recent'>Recent edits</Link></div>
                     <hr />
                     <div><Link href='/page/common/Flowers'>Flowers</Link></div>
                     <div><Link href='/page/common/Native%20Plants'>Native Plants</Link></div>
@@ -195,7 +182,7 @@ export let Sidebar = () =>
         <div className='sidebarSettings'>
             <Box>
                 <Stack>
-                    <ThemeChooserFullScreen className='sidebarButton' />
+                    <div><Link href='/themes'>Themes</Link></div>
                     <ThemeDarkButton className='sidebarButton' />
                 </Stack>
             </Box>

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 
 // lib
 import {
@@ -14,6 +14,7 @@ import { ThemeContext } from '../hooks/themeContext';
 // components
 import {
     Stack,
+    Box,
 } from './layouts';
 
 // css
@@ -81,58 +82,42 @@ export let ThemeFlag = (props: ThemeFlagProps) => {
 //================================================================================
 //
 
-interface ThemeChooserFullScreenProps {
-    className?: string;
-}
-export let ThemeChooserFullScreen = (props: ThemeChooserFullScreenProps) => {
-    let [ isShown, setIsShown ] = useState(false);
+export let ThemeChooser = () => {
     let { theme, allThemes, setTheme, isDark, setIsDark } = useContext(ThemeContext);
-    let bodyNoScrollCss = `
-        body {
-            overflow: hidden;
-        }
-    `;
+    let close = () => {
+        // TODO: how to only go back when the previous page is on the same site?
+        //window.history.back();
+    };
+    let sWell: React.CSSProperties = {
+        backgroundColor: isDark ? 'black' : 'white',
+        borderRadius: 'var(--round-card)',
+    };
     return (
-        <div className='themeChooserFullScreen'>
-            <button type="button"
-                className={props.className === undefined ? 'buttonHollowFaint' : props.className}
-                onClick={e => setIsShown(!isShown)}
-            >
-                    Theme
-            </button>
-            { !isShown ? null : 
-                <div className="themeChooserFullScreenBackdrop"
-                    onClick={e => setIsShown(!isShown)}
-                >
-                    <div className="themeChooserFullScreenPanel"
-                        onClick={e => e.stopPropagation()}
+        <div className='themeChooser'>
+            <Stack>
+                <h3>
+                    Mode:{" "}
+                    <button className='buttonHollowStrong' type="button"
+                        onClick={e => setIsDark(!isDark)}
                     >
-                        <Stack>
-                            <h3>
-                                Mode:{" "}
-                                <button className='buttonHollowStrong' type="button"
-                                    onClick={e => setIsDark(!isDark)}
-                                >
-                                    {isDark ? 'dark' : 'light'}
-                                </button>
-                            </h3>
-                            <h3>Current theme</h3>
-                            <ThemeFlag key={theme.scheme} theme={theme}
-                                onClick={e => { setIsShown(false); } }
-                                />
-                            <h3>Other themes</h3>
-                            <div>
-                            {allThemes.map(th => {
-                                return <ThemeFlag key={th.scheme} theme={th}
-                                    onClick={e => { setTheme(th); setIsShown(false); } }
-                                    />
-                            })}
-                            </div>
-                        </Stack>
-                    </div>
-                    <style dangerouslySetInnerHTML={{ __html: bodyNoScrollCss }}></style>
-                </div>
-            }
+                        {isDark ? 'dark' : 'light'}
+                    </button>
+                </h3>
+                <h3>Current theme</h3>
+                <Box style={sWell}>
+                    <ThemeFlag key={theme.scheme} theme={theme}
+                        onClick={e => { close(); } }
+                        />
+                </Box>
+                <h3>Other themes</h3>
+                <Box style={sWell}>
+                    {allThemes.map(th => {
+                        return <ThemeFlag key={th.scheme} theme={th}
+                            onClick={e => { setTheme(th); close(); } }
+                            />
+                    })}
+                </Box>
+            </Stack>
         </div>
     );
 }

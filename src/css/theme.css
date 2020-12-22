@@ -16,35 +16,15 @@
         appearance: none;
     }
 
-.themeChooserFullScreen {
-    display: inline;
+/*
+.themeChooser {
 }
-    .themeChooserFullScreenBackdrop {
-        text-align: center;
-        background-color: var(--base00);
-        position: fixed;
-        top: 0px; bottom: 0px;
-        left: 0px; right: 0px;
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-    .themeChooserFullScreenPanel {
-        text-align: left;
-        overflow-y: scroll;
-        margin-left: auto; margin-right: auto;
-        margin-top: 8vh;
-        max-height: 82vh;
-        max-width: 50ch;
-        background: #888;
-        padding: 20px;
-        border-radius: var(--round-card);
-    }
-    .themeChooserFullScreenPanel h3 {
-        color: #fff;
-    }
-    .themeChooserFullScreenPanel .themeFlag {
+*/
+    .themeChooser .themeFlag {
         height: 1.4em;
         border-radius: 15px;
+        cursor: pointer;
+        /*box-shadow: 0 0 0 1px rgba(127,127,127,0.3);*/
     }
 
 .themeFlag {
