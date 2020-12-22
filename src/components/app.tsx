@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     AuthorKeypair,
     //sleep,
@@ -7,6 +7,7 @@ import {
     StorageToAsync,
     ValidatorEs4,
 } from 'earthstar';
+import { useRoutes, Link, useQueryParams } from 'raviger';
 
 // lib
 import { log } from '../lib/util';
@@ -118,8 +119,37 @@ setForever(WIKI, plantPage);
 log('setup', '...done');
 
 //================================================================================
+// ROUTING
+
+let routes = {
+    '/': () => <div>home</div>,
+    '/settings': () => <div>settings</div>,
+    '/page/:title': (props: { title: string }) => <h1>page = {props.title}</h1>,
+    '/block/:blockid': (props: { blockid: string }) => <h2>block = {props.blockid}</h2>,
+};
+
+export let RouteComponent = () => {
+    let routeComponent = useRoutes(routes as any);
+    // scroll to top when navigating
+    useEffect(() => window.scrollTo(0, 0));
+    return routeComponent;
+};
 
 export let App = () => {
+    return <div>
+        <div>navbar</div>
+        <Link href="/">home</Link> |{" "}
+        <Link href="/settings">settings</Link> |{" "}
+        <Link href="/page/:foo">page :foo</Link> |{" "}
+        <Link href="/block/block:1234">block block:1234</Link>
+        <hr/>
+        <RouteComponent />
+    </div>
+}
+
+//================================================================================
+
+export let App2 = () => {
     const [theme, setTheme] = useState<Theme>(defaultTheme);
     const [isDark, setIsDark] = useState(true);
     let initialThemeValue = {

@@ -9445,6 +9445,11 @@ range-parser@^1.2.1, range-parser@~1.2.1:
   resolved "https://registry.yarnpkg.com/range-parser/-/range-parser-1.2.1.tgz#3cf37023d199e1c24d1a55b84800c2f3e6468031"
   integrity sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==
 
+raviger@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/raviger/-/raviger-2.0.0.tgz#f7a2db58dc86b89ba191806f64c86ac6154d3641"
+  integrity sha512-LdjNxTs8wtGFrK0tuyX+shkMa0VEk7L1qyjmquoMmRXEEgJXgWpZ5MoiPIsuGs5eQZOrAh22Y5h1+pzoLRgLUg==
+
 raw-body@2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/raw-body/-/raw-body-2.4.0.tgz#a1ce6fb9c9bc356ca52e89256ab59059e13d0332"
