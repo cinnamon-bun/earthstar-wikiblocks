@@ -81,7 +81,10 @@ export let ThemeFlag = (props: ThemeFlagProps) => {
 //================================================================================
 //
 
-export let ThemeChooserFullScreen = () => {
+interface ThemeChooserFullScreenProps {
+    className?: string;
+}
+export let ThemeChooserFullScreen = (props: ThemeChooserFullScreenProps) => {
     let [ isShown, setIsShown ] = useState(false);
     let { theme, allThemes, setTheme, isDark, setIsDark } = useContext(ThemeContext);
     let bodyNoScrollCss = `
@@ -91,7 +94,12 @@ export let ThemeChooserFullScreen = () => {
     `;
     return (
         <div className='themeChooserFullScreen'>
-            <button className='buttonHollowFaint' type="button" onClick={e => setIsShown(!isShown)}>Theme</button>
+            <button type="button"
+                className={props.className === undefined ? 'buttonHollowFaint' : props.className}
+                onClick={e => setIsShown(!isShown)}
+            >
+                    Theme
+            </button>
             { !isShown ? null : 
                 <div className="themeChooserFullScreenBackdrop"
                     onClick={e => setIsShown(!isShown)}
@@ -129,13 +137,17 @@ export let ThemeChooserFullScreen = () => {
     );
 }
 
-export let ThemeDarkButton = () => {
+interface ThemeDarkButtonProps {
+    className?: string
+}
+export let ThemeDarkButton = (props: ThemeDarkButtonProps) => {
     let { isDark, setIsDark } = useContext(ThemeContext);
     return (<>
-        <button type="button" className="buttonHollowFaint"
+        <button type="button"
+            className={props.className === undefined ? 'buttonHollowFaint' : props.className}
             onClick={(e) => setIsDark(!isDark)}
         >
-            {isDark ? 'Dark' : 'Light'}
+            {isDark ? 'Dark mode' : 'Light mode'}
         </button>
         </>
     );

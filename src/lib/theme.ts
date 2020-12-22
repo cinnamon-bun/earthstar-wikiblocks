@@ -9,7 +9,7 @@ export type Theme = themes.Base16Theme;
 // OUR LIBRARY OF THEMES
 
 export let allThemes: Theme[] = Object.values(themes).filter(x => x.base00 !== undefined);
-export let defaultTheme: Theme = themes.railscasts;
+export let defaultTheme: Theme = themes.atelierHeath;
 
 export let findThemeByName = (name: string): Theme => {
     for (let th of allThemes) {

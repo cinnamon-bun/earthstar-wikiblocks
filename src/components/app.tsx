@@ -7,7 +7,7 @@ import {
     StorageToAsync,
     ValidatorEs4,
 } from 'earthstar';
-import { useRoutes, Link, useQueryParams } from 'raviger';
+import { useRoutes, /*Link, useQueryParams*/ } from 'raviger';
 
 // lib
 import { log } from '../lib/util';
@@ -31,7 +31,7 @@ import { WikiLayerContext } from '../hooks/wikiLayerContext';
 // components
 import {
     Box,
-    Cluster,
+    //Cluster,
     Stack,
 } from './layouts';
 import {
@@ -43,6 +43,7 @@ import { PageView } from './pageView';
 
 // css
 import '../css/index.css';
+import '../css/app.css';
 
 //================================================================================
 // SETUP
@@ -128,6 +129,7 @@ let routes = {
     '/block/:blockid': (props: { blockid: string }) => <h2>block = {props.blockid}</h2>,
 };
 
+// make a component around this to fix scroll behavior
 export let RouteComponent = () => {
     let routeComponent = useRoutes(routes as any);
     // scroll to top when navigating
@@ -135,6 +137,7 @@ export let RouteComponent = () => {
     return routeComponent;
 };
 
+/*
 export let App = () => {
     return <div>
         <div>navbar</div>
@@ -146,10 +149,48 @@ export let App = () => {
         <RouteComponent />
     </div>
 }
+*/
 
 //================================================================================
 
-export let App2 = () => {
+export let Sidebar = () =>
+    <div className='sidebar'>
+        <div className='sidebarWorkspace'>
+            <Box>
+                <div className='legend'>workspace</div>
+                <select>
+                    <option>+gardening.abc</option>
+                    <option>+sailing.xyz</option>
+                </select>
+            </Box>
+        </div>
+        <div className='sidebarNav'>
+            <Box>
+                <Stack>
+                    <div><a href="#a">Recent edits</a></div>
+                    <div><a href="#b">All pages</a></div>
+                </Stack>
+            </Box>
+        </div>
+        <div className='sidebarStretch' />
+        <div className='sidebarSettings'>
+            <Box>
+                <Stack>
+                    <ThemeChooserFullScreen className='sidebarButton' />
+                    <ThemeDarkButton className='sidebarButton' />
+                </Stack>
+            </Box>
+        </div>
+        <div className='sidebarUser'>
+            <Box>
+                <div className='legend'>user</div>
+                <div>Cinnamon</div>
+                <div>@cinn</div>
+            </Box>
+        </div>
+    </div>;
+
+export let App = () => {
     const [theme, setTheme] = useState<Theme>(defaultTheme);
     const [isDark, setIsDark] = useState(true);
     let initialThemeValue = {
@@ -163,18 +204,15 @@ export let App2 = () => {
         <StorageContext.Provider value={STORAGE}>
         <KeypairContext.Provider value={KEYPAIR1}>
         <WikiLayerContext.Provider value={WIKI}>
-            <Box>
-                <Stack>
-                    <Cluster align="right">
-                        <ThemeContext.Provider value={initialThemeValue}>
-                            <SetThemeCssVariables />
-                            <ThemeChooserFullScreen />
-                            <ThemeDarkButton />
-                        </ThemeContext.Provider>
-                    </Cluster>
+        <ThemeContext.Provider value={initialThemeValue}>
+            <SetThemeCssVariables />
+            <div className="app">
+                <Sidebar />
+                <Box className='mainPanel'>
                     <PageView page={plantPage} />
-                </Stack>
-            </Box>
+                </Box>
+            </div>
+        </ThemeContext.Provider>
         </WikiLayerContext.Provider>
         </KeypairContext.Provider>
         </StorageContext.Provider>

@@ -25,6 +25,8 @@
     --fadeout-time: 0.4s;
 
     --hidden-controls-opacity: 0;
+
+    --sidebar-width: 15ch;
 }
 
 h1, h2, h3, h4, h5 {
@@ -87,6 +89,7 @@ body {
 
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-size: 90%;
 }
 
 a {
