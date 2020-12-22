@@ -21,6 +21,10 @@ import '../css/pageAndBlocks.css';
 export interface PageViewProps {
     page: Page;
 }
+let areEqual = (prevProps: PageViewProps, nextProps: PageViewProps) =>
+    (prevProps.page.owner === nextProps.page.owner
+    && prevProps.page.title === nextProps.page.title);
+
 export let PageView = memo(function PageView(props: PageViewProps) {
     let logName = `PageView ${props.page.title}`;
     log(logName, '---render---', props.page.title);
@@ -87,4 +91,4 @@ export let PageView = memo(function PageView(props: PageViewProps) {
             </div>
         </Stack>
     );
-});
+}, areEqual);
