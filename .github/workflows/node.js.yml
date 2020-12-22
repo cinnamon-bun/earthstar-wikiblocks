@@ -32,6 +32,6 @@ jobs:
           CI: true
 
       - name: Build
-        run: yarn build
+        run: CI='' yarn build
         env:
           CI: true
