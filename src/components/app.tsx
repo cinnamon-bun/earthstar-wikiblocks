@@ -7,7 +7,7 @@ import {
     StorageToAsync,
     ValidatorEs4,
 } from 'earthstar';
-import { useRoutes, /*Link, useQueryParams*/ } from 'raviger';
+import { useRoutes, Link /*, useQueryParams*/ } from 'raviger';
 
 // lib
 import { log } from '../lib/util';
@@ -122,11 +122,27 @@ log('setup', '...done');
 //================================================================================
 // ROUTING
 
+export let AllPages = () =>
+    <Stack>
+        <h1>All pages</h1>
+        <i>Coming soon</i>
+    </Stack>;
+
+export let RecentEdits = () =>
+    <Stack>
+        <h1>Recent Edits</h1>
+        <i>Coming soon</i>
+    </Stack>;
+
 let routes = {
-    '/': () => <div>home</div>,
-    '/settings': () => <div>settings</div>,
-    '/page/:title': (props: { title: string }) => <h1>page = {props.title}</h1>,
-    '/block/:blockid': (props: { blockid: string }) => <h2>block = {props.blockid}</h2>,
+    '/': () => <AllPages />,
+    '/pages/all': () => <AllPages />,
+    '/pages/recent': () => <RecentEdits />,
+    '/page/:owner/:title': (props: { owner: string, title: string }) => {
+        let title = decodeURIComponent(props.title);
+        let page = WIKI.getPage(props.owner, title);
+        return <PageView page={page} />
+    },
 };
 
 // make a component around this to fix scroll behavior
@@ -167,8 +183,11 @@ export let Sidebar = () =>
         <div className='sidebarNav'>
             <Box>
                 <Stack>
-                    <div><a href="#a">Recent edits</a></div>
-                    <div><a href="#b">All pages</a></div>
+                    <div><Link href='/pages/recent'>Recent edits</Link></div>
+                    <div><Link href='/pages/all'>All pages</Link></div>
+                    <hr />
+                    <div><Link href='/page/common/Flowers'>Flowers</Link></div>
+                    <div><Link href='/page/common/Native%20Plants'>Native Plants</Link></div>
                 </Stack>
             </Box>
         </div>
@@ -209,7 +228,7 @@ export let App = () => {
             <div className="app">
                 <Sidebar />
                 <Box className='mainPanel'>
-                    <PageView page={plantPage} />
+                    <RouteComponent />
                 </Box>
             </div>
         </ThemeContext.Provider>

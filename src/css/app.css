@@ -41,6 +41,11 @@
             text-decoration: none;
             color: inherit;
         }
+        .app .sidebar hr {
+            border: none;
+            background-color: var(--base03);
+            height: 2px;
+        }
         .app .sidebar select {
             color: var(--base06);
             background-color: transparent;
