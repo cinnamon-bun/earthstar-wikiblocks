@@ -40,6 +40,7 @@ import {
     ThemeDarkButton,
 } from './themeComponents';
 import { PageView } from './pageView';
+import { AllPages } from './allPages';
 
 // css
 import '../css/index.css';
@@ -122,12 +123,6 @@ log('setup', '...done');
 //================================================================================
 // ROUTING
 
-export let AllPages = () =>
-    <Stack>
-        <h1>All pages</h1>
-        <div>Coming soon</div>
-    </Stack>;
-
 export let RecentEdits = () =>
     <Stack>
         <h1>Recent edits</h1>
@@ -172,9 +167,6 @@ export let Sidebar = () =>
                 <Stack>
                     <div><Link href='/pages/all'>All pages</Link></div>
                     <div><Link href='/pages/recent'>Recent edits</Link></div>
-                    <hr />
-                    <div><Link href='/page/common/Flowers'>Flowers</Link></div>
-                    <div><Link href='/page/common/Native%20Plants'>Native Plants</Link></div>
                 </Stack>
             </Box>
         </div>
