@@ -85,7 +85,7 @@ export let PageView = memo(function PageView(props: PageViewProps) {
     return (
         <Stack className="pageView">
             <h1 className="pageTitle">{page.title}</h1>
-            <div className="owner">{ownerText}</div>
+            <div className="owner" title={page.owner}>{ownerText}</div>
             <div className="pageBlocks">
                 {items}
             </div>

@@ -106,6 +106,10 @@ a {
     text-align: right;
 }
 
+.textFaint {
+    color: var(--base05);
+}
+
 .buttonHollowFaint {
     color: var(--base03);
     background-color: var(--base00);

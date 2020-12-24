@@ -1,0 +1,15 @@
+.createPage input[type=text] {
+    font: inherit;
+    font-size: 150%;
+    display: block;
+    width: 100%;
+    color: inherit;
+    padding: 4px 8px;
+    background-color: transparent;
+    border: 2px solid var(--base02);
+    border-radius: var(--round-button);
+}
+
+.createPage input[type=text]::placeholder {
+    color: var(--base02);
+}

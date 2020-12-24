@@ -48,7 +48,10 @@ export let AllPages = () => {
             if (page.owner !== prevOwner) {
                 pageElems.push(
                     <h3 key={`section-${page.owner}`}>
-                        {page.owner === 'common' ? page.owner : ('by ' + page.owner.slice(0, 11) + '...')}
+                        {page.owner === 'common'
+                            ? <span>Common pages</span>
+                            : <span>Pages by <code title={page.owner}>{page.owner.slice(0, 11) + '...'}</code></span>
+                        }
                     </h3>
                 );
                 prevOwner = page.owner

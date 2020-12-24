@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
     AuthorKeypair,
     //sleep,
@@ -7,7 +7,7 @@ import {
     StorageToAsync,
     ValidatorEs4,
 } from 'earthstar';
-import { useRoutes, Link /*, useQueryParams*/ } from 'raviger';
+import { useRoutes, Link } from 'raviger';
 
 // lib
 import { log } from '../lib/util';
@@ -41,6 +41,7 @@ import {
 } from './themeComponents';
 import { PageView } from './pageView';
 import { AllPages } from './allPages';
+import { CreatePage } from './createPage';
 
 // css
 import '../css/index.css';
@@ -59,7 +60,7 @@ const AUTHOR1 = KEYPAIR1.address;
 
 const WORKSPACE = '+test.abc';
 //const STORAGE = new StorageToAsync(new StorageMemory([ValidatorEs4], WORKSPACE), 1);
-const STORAGE = new StorageToAsync(new StorageLocalStorage([ValidatorEs4], WORKSPACE), 500);
+const STORAGE = new StorageToAsync(new StorageLocalStorage([ValidatorEs4], WORKSPACE), 100);
 
 const WIKI = new WikiLayer(STORAGE);
 
@@ -134,6 +135,7 @@ let routes = {
     '/themes': () => <ThemeChooser />,
     '/pages/all': () => <AllPages />,
     '/pages/recent': () => <RecentEdits />,
+    '/pages/create': () => <CreatePage />,
     '/page/:owner/:title': (props: { owner: string, title: string }) => {
         let title = decodeURIComponent(props.title);
         let page = WIKI.getPage(props.owner, title);
@@ -151,8 +153,10 @@ export let RouteComponent = () => {
 
 //================================================================================
 
-export let Sidebar = () =>
-    <div className='sidebar'>
+export let Sidebar = () => {
+    let keypair = useContext(KeypairContext);
+
+    return <div className='sidebar'>
         <div className='sidebarWorkspace'>
             <Box>
                 <div className='legend'>workspace</div>
@@ -167,6 +171,7 @@ export let Sidebar = () =>
                 <Stack>
                     <div><Link href='/pages/all'>All pages</Link></div>
                     <div><Link href='/pages/recent'>Recent edits</Link></div>
+                    <div><Link href='/pages/create'>Create page</Link></div>
                 </Stack>
             </Box>
         </div>
@@ -182,11 +187,17 @@ export let Sidebar = () =>
         <div className='sidebarUser'>
             <Box>
                 <div className='legend'>user</div>
-                <div>Cinnamon</div>
-                <div>@cinn</div>
+                {keypair === null
+                ? <div>Guest</div>
+                : <div>
+                        <div>Suzy</div>
+                        <div><code title={keypair.address}>{keypair.address.slice(0, 11) + '...'}</code></div>
+                    </div>
+                }
             </Box>
         </div>
-    </div>;
+    </div>
+}
 
 export let App = () => {
     const [theme, setTheme] = useState<Theme>(defaultTheme);
